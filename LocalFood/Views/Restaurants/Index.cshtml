@@ -1,0 +1,30 @@
+﻿@model IEnumerable<LocalFood.Models.Restaurant>
+@{
+    ViewData["Title"] = "Ресторани";
+}
+<h1>Ресторани</h1>
+<a asp-action="Create" class="btn btn-success">Додати ресторан</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Адреса</th>
+            <th>Опис</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var restaurant in Model)
+        {
+            <tr>
+                <td>@restaurant.Name</td>
+                <td>@restaurant.Address</td>
+                <td>@restaurant.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@restaurant.RestaurantId" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Delete" asp-route-id="@restaurant.RestaurantId" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

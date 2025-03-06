@@ -1,0 +1,26 @@
+﻿@model LocalFood.Models.OrderItem
+
+@{
+    ViewData["Title"] = "Додати страву до замовлення";
+}
+
+<h2>Додати страву до замовлення</h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="OrderId" />
+
+    <div class="form-group">
+        <label>Страва</label>
+        <select asp-for="DishId" asp-items="ViewBag.DishId" class="form-control" required>
+            <option value="">Оберіть страву</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantity"></label>
+        <input asp-for="Quantity" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-success">Додати</button>
+    <a asp-action="Track" asp-controller="Orders" asp-route-id="@Model.OrderId" class="btn btn-secondary">Назад</a>
+</form>

@@ -1,0 +1,22 @@
+﻿@model LocalFood.Models.Restaurant
+@{
+    ViewData["Title"] = "Редагувати ресторан";
+}
+<h1>Редагувати ресторан</h1>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="RestaurantId" />
+    <div class="mb-3">
+        <label class="form-label">Назва</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Адреса</label>
+        <input asp-for="Address" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Опис</label>
+        <textarea asp-for="Description" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Зберегти</button>
+    <a asp-action="Index" class="btn btn-secondary">Назад</a>
+</form>

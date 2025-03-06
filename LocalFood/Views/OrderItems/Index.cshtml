@@ -1,0 +1,33 @@
+﻿@model IEnumerable<LocalFood.Models.OrderItem>
+@{
+    ViewData["Title"] = "Позиції замовлення";
+    var orderId = ViewBag.OrderId;
+}
+<h2>Позиції замовлення</h2>
+<p>
+    <a asp-action="Create" asp-route-orderId="@orderId" class="btn btn-primary">Додати позицію</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Страва</th>
+            <th>Кількість</th>
+            <th>Ціна</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Dish.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-action="Track" asp-controller="Orders" asp-route-id="@orderId" class="btn btn-secondary">Назад</a>

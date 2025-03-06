@@ -1,0 +1,37 @@
+﻿@model LocalFood.Models.Order
+@{
+    ViewData["Title"] = "Редагувати замовлення";
+}
+<h2>Редагувати замовлення</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="OrderId" />
+    <div class="form-group">
+        <label asp-for="CustomerName"></label>
+        <input asp-for="CustomerName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Ресторан</label>
+        <select asp-for="RestaurantId" asp-items="ViewBag.RestaurantId" class="form-control" required>
+            <option value="">Оберіть ресторан</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Статус замовлення</label>
+        <select asp-for="StatusId" asp-items="ViewBag.StatusList" class="form-control" required>
+            <option value="">Оберіть статус</option>
+        </select>
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Зберегти</button>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </div>
+</form>

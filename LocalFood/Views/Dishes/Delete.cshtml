@@ -1,0 +1,17 @@
+﻿@model LocalFood.Models.Dish
+@{
+    ViewData["Title"] = "Видалити страву";
+}
+<h2>Видалити страву</h2>
+<h3>Ви впевнені, що хочете видалити цю страву?</h3>
+<div>
+    <h4>@Model.Name</h4>
+    <p>@Model.Description</p>
+    <p><strong>Ціна:</strong> @Model.Price</p>
+    <p><strong>Ресторан:</strong> @Model.RestaurantDishes.FirstOrDefault()?.Restaurant?.Name</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="DishId" />
+        <button type="submit" class="btn btn-danger">Видалити</button>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </form>
+</div>

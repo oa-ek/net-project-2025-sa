@@ -1,0 +1,43 @@
+﻿@model LocalFood.Models.Order
+
+@{
+    ViewData["Title"] = "Створити замовлення";
+}
+
+<h2>Створити замовлення</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="CustomerName"></label>
+        <input asp-for="CustomerName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Ресторан</label>
+        <select asp-for="RestaurantId" asp-items="ViewBag.RestaurantId" class="form-control" required>
+            <option value="">Оберіть ресторан</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Статус замовлення</label>
+        <select asp-for="StatusId" asp-items="ViewBag.StatusList" class="form-control" required>
+            <option value="">Оберіть статус</option>
+        </select>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-success">Створити</button>
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </div>
+</form>
