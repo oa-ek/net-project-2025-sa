@@ -16,6 +16,10 @@ namespace LocalFood.Models
         [Required]
         public string Address { get; set; }
 
+        // Додаємо фото як шлях до збереженого файлу
+        public string? ImagePath { get; set; }
+
         public virtual ICollection<RestaurantDish> RestaurantDishes { get; set; } = new List<RestaurantDish>();
     }
+
 }

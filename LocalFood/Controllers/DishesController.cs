@@ -1,134 +1,201 @@
 ﻿using LocalFood.Data;
 using LocalFood.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LocalFood.Controllers
 {
+    [Authorize]
     public class DishesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<DishesController> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public DishesController(ApplicationDbContext context, ILogger<DishesController> logger)
+        public DishesController(ApplicationDbContext context, ILogger<DishesController> logger, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        // Відображення списку страв з ресторанами
-        public async Task<IActionResult> Index()
+        // Головна сторінка — список страв (фільтрація по restaurantId, якщо задано)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(int? restaurantId)
         {
-            var dishes = _context.Dishes.Include(d => d.RestaurantDishes)
-                              .ThenInclude(rd => rd.Restaurant);
-            return View(await dishes.ToListAsync());
+            var dishesQuery = _context.Dishes
+                .Include(d => d.RestaurantDishes)
+                .ThenInclude(rd => rd.Restaurant)
+                .AsQueryable();
+
+            if (restaurantId.HasValue && restaurantId.Value > 0)
+            {
+                dishesQuery = dishesQuery.Where(d =>
+                    d.RestaurantDishes.Any(rd => rd.RestaurantId == restaurantId));
+                ViewBag.RestaurantId = restaurantId;
+            }
+
+            return View(await dishesQuery.ToListAsync());
         }
 
-        public IActionResult Create()
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create(int restaurantId)
         {
-            ViewBag.RestaurantId = new SelectList(_context.Restaurants, "RestaurantId", "Name");
+            ViewBag.RestaurantId = restaurantId;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Dish dish, int RestaurantId)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(Dish dish, int restaurantId, IFormFile? image)
         {
-            if (RestaurantId == 0)
+            if (!ModelState.IsValid)
+                return View(dish);
+
+            if (image != null)
             {
-                ModelState.AddModelError("RestaurantId", "Оберіть ресторан зі списку.");
+                var fileName = Path.GetFileNameWithoutExtension(image.FileName)
+                             + "_" + Guid.NewGuid().ToString().Substring(0, 8)
+                             + Path.GetExtension(image.FileName);
+
+                var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "dishes");
+                Directory.CreateDirectory(uploadPath);
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                dish.ImageUrl = "/images/dishes/" + fileName;
             }
 
-            if (ModelState.IsValid)
+            _context.Dishes.Add(dish);
+            await _context.SaveChangesAsync();
+
+            _context.RestaurantDishes.Add(new RestaurantDish
             {
-                _context.Add(dish);
-                await _context.SaveChangesAsync();
+                DishId = dish.DishId,
+                RestaurantId = restaurantId
+            });
 
-                // Створення зв’язку через RestaurantDish
-                var rd = new RestaurantDish { DishId = dish.DishId, RestaurantId = RestaurantId };
-                _context.RestaurantDishes.Add(rd);
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewBag.RestaurantId = new SelectList(_context.Restaurants, "RestaurantId", "Name", RestaurantId);
-            return View(dish);
+            return RedirectToAction("Menu", "Restaurants", new { id = restaurantId });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            var dish = await _context.Dishes.Include(d => d.RestaurantDishes).FirstOrDefaultAsync(d => d.DishId == id);
+            var dish = await _context.Dishes
+                .Include(d => d.RestaurantDishes)
+                .FirstOrDefaultAsync(d => d.DishId == id);
+
             if (dish == null) return NotFound();
 
-            var restaurantId = dish.RestaurantDishes.FirstOrDefault()?.RestaurantId ?? 0;
-            ViewBag.RestaurantId = new SelectList(_context.Restaurants, "RestaurantId", "Name", restaurantId);
+            ViewBag.RestaurantId = dish.RestaurantDishes.FirstOrDefault()?.RestaurantId ?? 0;
             return View(dish);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Dish dish, int RestaurantId)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, Dish dish, int restaurantId, IFormFile? image)
         {
             if (id != dish.DishId) return NotFound();
 
-            if (RestaurantId == 0)
+            var existing = await _context.Dishes.FindAsync(id);
+            if (existing == null) return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(dish);
+
+            existing.Name = dish.Name;
+            existing.Description = dish.Description;
+            existing.Price = dish.Price;
+
+            if (image != null)
             {
-                ModelState.AddModelError("RestaurantId", "Оберіть ресторан зі списку.");
+                var fileName = Path.GetFileNameWithoutExtension(image.FileName)
+                             + "_" + Guid.NewGuid().ToString().Substring(0, 8)
+                             + Path.GetExtension(image.FileName);
+
+                var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "dishes");
+                Directory.CreateDirectory(uploadPath);
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                existing.ImageUrl = "/images/dishes/" + fileName;
             }
 
-            if (ModelState.IsValid)
+            _context.Update(existing);
+
+            var rel = await _context.RestaurantDishes.FirstOrDefaultAsync(r => r.DishId == id);
+            if (rel != null)
             {
-                _context.Update(dish);
-                await _context.SaveChangesAsync();
-
-                var rd = await _context.RestaurantDishes.FirstOrDefaultAsync(x => x.DishId == dish.DishId);
-                if (rd != null)
+                rel.RestaurantId = restaurantId;
+            }
+            else
+            {
+                _context.RestaurantDishes.Add(new RestaurantDish
                 {
-                    rd.RestaurantId = RestaurantId;
-                    _context.Update(rd);
-                }
-                else
-                {
-                    rd = new RestaurantDish { DishId = dish.DishId, RestaurantId = RestaurantId };
-                    _context.RestaurantDishes.Add(rd);
-                }
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                    DishId = id,
+                    RestaurantId = restaurantId
+                });
             }
 
-            ViewBag.RestaurantId = new SelectList(_context.Restaurants, "RestaurantId", "Name", RestaurantId);
-            return View(dish);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Menu", "Restaurants", new { id = restaurantId });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var dish = await _context.Dishes.Include(d => d.RestaurantDishes)
-                              .ThenInclude(rd => rd.Restaurant)
-                              .FirstOrDefaultAsync(d => d.DishId == id);
+            var dish = await _context.Dishes
+                .Include(d => d.RestaurantDishes)
+                .ThenInclude(rd => rd.Restaurant)
+                .FirstOrDefaultAsync(d => d.DishId == id);
+
             if (dish == null) return NotFound();
+
             return View(dish);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var dish = await _context.Dishes.FindAsync(id);
             if (dish != null)
             {
-                var rdList = _context.RestaurantDishes.Where(rd => rd.DishId == id);
-                _context.RestaurantDishes.RemoveRange(rdList);
+                // 🧹 Видалення фото
+                if (!string.IsNullOrEmpty(dish.ImageUrl))
+                {
+                    var fullImagePath = Path.Combine(_webHostEnvironment.WebRootPath, dish.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(fullImagePath))
+                    {
+                        System.IO.File.Delete(fullImagePath);
+                    }
+                }
+
+                // Видалення зв'язку з ресторанами
+                var relations = _context.RestaurantDishes.Where(rd => rd.DishId == id);
+                _context.RestaurantDishes.RemoveRange(relations);
 
                 _context.Dishes.Remove(dish);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

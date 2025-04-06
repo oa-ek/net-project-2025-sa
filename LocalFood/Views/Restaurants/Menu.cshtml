@@ -1,0 +1,57 @@
+﻿@model LocalFood.Models.Restaurant
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Меню ресторану " + Model.Name;
+    bool isAdmin = SignInManager.IsSignedIn(User) && User.IsInRole("Admin");
+    bool isUser = SignInManager.IsSignedIn(User) && User.IsInRole("User");
+}
+
+<h1>Меню ресторану "@Model.Name"</h1>
+
+@if (isAdmin)
+{
+    <div class="mb-3">
+        <a class="btn btn-success" asp-controller="Dishes" asp-action="Index" asp-route-restaurantId="@Model.RestaurantId">
+            Управління стравами
+        </a>
+    </div>
+}
+
+@if (Model.RestaurantDishes == null || !Model.RestaurantDishes.Any())
+{
+    <p>У цьому ресторані ще немає страв.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var rd in Model.RestaurantDishes)
+        {
+            var dish = rd.Dish;
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                    {
+                        <img src="@dish.ImageUrl" class="card-img-top" alt="Фото страви" style="max-height: 180px; object-fit: cover;" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@dish.Name</h5>
+                        <p class="card-text">@dish.Description</p>
+                        <p><strong>@dish.Price.ToString("0.00") грн</strong></p>
+
+                        @if (isUser)
+                        {
+                            <form asp-controller="Cart" asp-action="AddToCart" method="get">
+                                <input type="hidden" name="dishId" value="@dish.DishId" />
+                                <input type="number" name="quantity" min="1" value="1" class="form-control mb-2" />
+                                <button type="submit" class="btn btn-primary btn-sm">Додати в кошик</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

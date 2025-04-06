@@ -1,43 +1,69 @@
 ﻿@model LocalFood.Models.Dish
 
 @{
-    ViewData["Title"] = "Редагувати страву";
-    var restaurantId = ViewBag.RestaurantId as int? ?? 0;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Редагувати страву";
 }
 
-<h2>Редагувати страву</h2>
+<h1 class="mb-4">Редагувати страву</h1>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="DishId" />
+<div class="card shadow-sm mb-5">
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="DishId" />
+            <input type="hidden" name="restaurantId" value="@ViewBag.RestaurantId" />
 
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" required />
-    </div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-bold">
+                    <i class="fa-solid fa-signature me-1"></i> Назва страви
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-signature text-primary"></i>
+                    </span>
+                    <input asp-for="Name" class="form-control" placeholder="Введіть назву" />
+                </div>
+                <span asp-validation-for="Name" class="text-warning"></span>
+            </div>
 
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <input asp-for="Description" class="form-control" required />
-    </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold">
+                    <i class="fa-solid fa-comment me-1"></i> Опис
+                </label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
 
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" required />
-    </div>
+            <div class="mb-3">
+                <label asp-for="Price" class="form-label fw-bold">
+                    <i class="fa-solid fa-dollar-sign me-1"></i> Ціна
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-dollar-sign text-primary"></i>
+                    </span>
+                    <input asp-for="Price" class="form-control" placeholder="Введіть ціну" />
+                </div>
+                <span asp-validation-for="Price" class="text-warning"></span>
+            </div>
 
-    <div class="form-group">
-        <label>Ресторан</label>
-        <select name="RestaurantId" class="form-control" required>
-            <option value="">Оберіть ресторан</option>
-            @foreach (var item in (SelectList)ViewBag.RestaurantId)
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-image me-1"></i> Оновити фото (необов’язково)
+                </label>
+                <input type="file" name="image" class="form-control" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
             {
-                <option value="@item.Value" selected="@(item.Value == restaurantId.ToString())">@item.Text</option>
+                <div class="mb-3 text-center">
+                    <label class="form-label fw-bold">Поточне фото:</label><br />
+                    <img src="@Model.ImageUrl" alt="Фото страви" width="200" class="img-thumbnail mb-2" />
+                </div>
             }
-        </select>
-    </div>
 
-    <div class="form-group mt-3">
-        <button type="submit" class="btn btn-primary">Зберегти</button>
-        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fa-solid fa-save me-1"></i> Зберегти
+            </button>
+        </form>
     </div>
-</form>
+</div>

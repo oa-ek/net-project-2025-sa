@@ -1,13 +1,25 @@
 ﻿@model LocalFood.Models.OrderItem
+
 @{
     ViewData["Title"] = "Видалити позицію замовлення";
 }
-<h2>Видалити позицію замовлення</h2>
-<div>
-    <p>Ви впевнені, що хочете видалити позицію: <strong>@Model.Dish.Name</strong>?</p>
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Видалити</button>
-        <a asp-action="Index" asp-route-orderId="@Model.OrderId" class="btn btn-secondary">Назад</a>
-    </form>
+
+<div class="card shadow-sm my-5">
+    <div class="card-body text-center p-5">
+        <h2 class="mb-4">
+            <i class="fa-solid fa-trash me-2"></i> Видалити позицію
+        </h2>
+        <p class="mb-4" style="color: #ffcb9a;">
+            Ви впевнені, що хочете видалити позицію: <strong>@Model.Dish.Name</strong>?
+        </p>
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger me-2">
+                <i class="fa-solid fa-check me-1"></i> Видалити
+            </button>
+            <a asp-action="Index" asp-route-orderId="@Model.OrderId" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Назад
+            </a>
+        </form>
+    </div>
 </div>

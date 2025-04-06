@@ -1,0 +1,172 @@
+﻿/* ========= ФОН ВСЬОГО САЙТУ ========= */
+body {
+    background: linear-gradient(120deg, #3A1C1E 0%, #7B2929 35%, #BF6533 100%);
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    margin: 0;
+    /* Використання flex для sticky footer */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ========= НАВІГАЦІЙНА ШАПКА ========= */
+.bg-restaurant {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.navbar-brand, .nav-link, .navbar-toggler-icon {
+    color: #ffe4c4 !important;
+}
+
+    .nav-link i {
+        transition: transform 0.2s ease;
+    }
+
+    .nav-link:hover i {
+        transform: scale(1.2);
+    }
+
+/* ========= ОСНОВНИЙ КОНТЕНТ ========= */
+.container.main-content {
+    flex: 1 0 auto;
+    max-width: 1200px;
+}
+
+/* ========= ФУТЕР ========= */
+.footer {
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ffe4c4;
+}
+
+/* ========= КАРТКИ ========= */
+.card {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    border: none;
+    color: #f5f5f5;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+    .card .card-body {
+        position: relative;
+    }
+
+        .card .card-body h2,
+        .card .card-body label {
+            color: #ffcb9a;
+        }
+
+/* ========= ФОРМИ ========= */
+.form-control {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #333;
+    border: none;
+}
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 148, 94, 0.5);
+    }
+
+/* ========= ІНПУТ-ГРУПИ ========= */
+.input-group-text {
+    background-color: transparent;
+    border: none;
+    color: #ffe4c4;
+}
+
+/* ========= КНОПКИ ========= */
+.btn-primary {
+    background-color: #ff884d;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #e6733f;
+    }
+
+.btn-success {
+    background-color: #f29849 !important;
+    border: none;
+}
+
+    .btn-success:hover {
+        background-color: #e97e24 !important;
+    }
+
+.btn-danger {
+    background-color: #ff4b4b !important;
+    border: none;
+}
+
+    .btn-danger:hover {
+        background-color: #e43d3d !important;
+    }
+
+.btn-secondary {
+    background-color: #b78d80 !important;
+    border: none;
+}
+
+    .btn-secondary:hover {
+        background-color: #9f6a5f !important;
+    }
+
+.btn-outline-danger {
+    color: #ff4b4b;
+    border-color: #ff4b4b;
+}
+
+    .btn-outline-danger:hover {
+        background-color: #ff4b4b;
+        color: #fff;
+    }
+
+/* ========= ДОДАТКОВІ Анімації для кнопок ========= */
+.btn i {
+    transition: transform 0.2s ease;
+}
+
+.btn:hover i {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+/* ========= ПОЗИЦІЮВАННЯ ========= */
+.my-5 {
+    margin-top: 3rem !important;
+    margin-bottom: 3rem !important;
+}
+
+.py-5 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+}
+
+.nav-link i, .btn i {
+    transition: transform 0.2s ease;
+}
+
+.nav-link:hover i, .btn:hover i {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+
+
+#foodCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+}
+

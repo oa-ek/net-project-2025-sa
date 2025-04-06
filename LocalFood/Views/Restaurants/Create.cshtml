@@ -1,21 +1,54 @@
 ﻿@model LocalFood.Models.Restaurant
+
 @{
-    ViewData["Title"] = "Додати ресторан";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Створити ресторан";
 }
-<h1>Додати ресторан</h1>
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label class="form-label">Назва</label>
-        <input asp-for="Name" class="form-control" required />
+
+<h2 class="mb-4">
+    <i class="fa-solid fa-plus me-2"></i> Створити ресторан
+</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-bold"></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-signature text-primary"></i>
+                    </span>
+                    <input asp-for="Name" class="form-control" placeholder="Назва ресторану" />
+                </div>
+                <span asp-validation-for="Name" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label fw-bold"></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-location-dot text-primary"></i>
+                    </span>
+                    <input asp-for="Address" class="form-control" placeholder="Адреса ресторану" />
+                </div>
+                <span asp-validation-for="Address" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold"></label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Опис ресторану"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-image me-1"></i> Фото ресторану
+                </label>
+                <input type="file" name="UploadImage" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                <i class="fa-solid fa-circle-check me-1"></i> Створити
+            </button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Адреса</label>
-        <input asp-for="Address" class="form-control" required />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Опис</label>
-        <textarea asp-for="Description" class="form-control" required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Додати</button>
-    <a asp-action="Index" class="btn btn-secondary">Назад</a>
-</form>
+</div>

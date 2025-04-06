@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Доступ заборонено";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <h2 class="mb-4">
+                        <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color:#e43d3d;"></i>
+                        Доступ заборонено
+                    </h2>
+                    <p class="mb-4" style="color: #ffcb9a;">Ви не маєте прав для перегляду цієї сторінки.</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-secondary">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Увійти під іншим акаунтом
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

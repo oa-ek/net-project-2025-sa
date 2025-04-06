@@ -1,0 +1,30 @@
+﻿@model LocalFood.Models.UserProfile
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Мій профіль";
+}
+
+<h1>Мій профіль</h1>
+
+<form asp-action="Index" method="post">
+    <input type="hidden" asp-for="UserId" />
+
+    <div>
+        <label asp-for="FullName">Повне ім'я</label>
+        <input asp-for="FullName" />
+    </div>
+    <div>
+        <label asp-for="Address">Адреса</label>
+        <input asp-for="Address" />
+    </div>
+    <div>
+        <label asp-for="Latitude">Широта</label>
+        <input asp-for="Latitude" />
+    </div>
+    <div>
+        <label asp-for="Longitude">Довгота</label>
+        <input asp-for="Longitude" />
+    </div>
+
+    <button type="submit">Зберегти</button>
+</form>

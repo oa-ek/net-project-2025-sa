@@ -1,30 +1,56 @@
 ﻿@model IEnumerable<LocalFood.Models.Restaurant>
+
 @{
-    ViewData["Title"] = "Ресторани";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Список ресторанів";
+    var isAdmin = User.IsInRole("Admin");
 }
-<h1>Ресторани</h1>
-<a asp-action="Create" class="btn btn-success">Додати ресторан</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Назва</th>
-            <th>Адреса</th>
-            <th>Опис</th>
-            <th>Дії</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var restaurant in Model)
-        {
-            <tr>
-                <td>@restaurant.Name</td>
-                <td>@restaurant.Address</td>
-                <td>@restaurant.Description</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@restaurant.RestaurantId" class="btn btn-warning">Редагувати</a>
-                    <a asp-action="Delete" asp-route-id="@restaurant.RestaurantId" class="btn btn-danger">Видалити</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<h1 class="mb-4">Список ресторанів</h1>
+
+@if (isAdmin)
+{
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-1"></i> Створити новий ресторан
+        </a>
+    </div>
+}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    @foreach (var r in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(r.ImagePath))
+                {
+                    <img src="@r.ImagePath" alt="Фото" class="card-img-top"
+                         style="object-fit: cover; max-height: 200px;" />
+                }
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@r.Name</h5>
+                    <p class="card-text mb-1">
+                        <i class="fa-solid fa-location-dot me-1"></i> @r.Address
+                    </p>
+                    <p class="card-text" style="flex-grow:1;">@r.Description</p>
+
+                    <div class="mt-auto">
+                        <a asp-action="Menu" asp-route-id="@r.RestaurantId" class="btn btn-info btn-sm mb-2">
+                            <i class="fa-solid fa-book-open-reader me-1"></i> Переглянути меню
+                        </a>
+
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Edit" asp-route-id="@r.RestaurantId" class="btn btn-warning btn-sm mb-2">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Редагувати
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@r.RestaurantId" class="btn btn-danger btn-sm mb-2">
+                                <i class="fa-solid fa-trash me-1"></i> Видалити
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

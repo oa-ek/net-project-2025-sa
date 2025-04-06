@@ -1,38 +1,53 @@
 ﻿@model IEnumerable<LocalFood.Models.Order>
+
 @{
-    ViewData["Title"] = "Список замовлень";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Список замовлень";
+    var isAdmin = User.IsInRole("Admin");
 }
-<h2>Список замовлень</h2>
-<p>
-    <a asp-action="Create" class="btn btn-primary">Створити замовлення</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Клієнт</th>
-            <th>Телефон</th>
-            <th>Адреса</th>
-            <th>Дата</th>
-            <th>Ресторан</th>
-            <th>Статус</th>
-            <th>Дії</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model)
-        {
-            <tr>
-                <td>@order.CustomerName</td>
-                <td>@order.Phone</td>
-                <td>@order.Address</td>
-                <td>@order.OrderDate.ToString("g")</td>
-                <td>@order.Restaurant?.Name</td>
-                <td>@order.OrderStatus?.Name</td>
-                <td>
-                    <a asp-action="Track" asp-route-id="@order.OrderId" class="btn btn-info">Відстежити</a>
-                    <a asp-action="Edit" asp-route-id="@order.OrderId" class="btn btn-warning">Редагувати</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<h1 class="mb-4">Список замовлень</h1>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var order in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fa-solid fa-user me-1"></i> @order.CustomerName
+                    </h5>
+                    <p class="card-text mb-1">
+                        <i class="fa-solid fa-phone me-1"></i> @order.Phone
+                    </p>
+                    <p class="card-text mb-1">
+                        <i class="fa-solid fa-location-dot me-1"></i> @order.Address
+                    </p>
+                    <p class="card-text mb-1">
+                        <i class="fa-solid fa-calendar me-1"></i> @order.OrderDate.ToString("g")
+                    </p>
+                    <p class="card-text mb-1">
+                        <i class="fa-solid fa-utensils me-1"></i> @order.Restaurant?.Name
+                    </p>
+                    <p class="card-text mb-3">
+                        <i class="fa-solid fa-info-circle me-1"></i> @order.OrderStatus?.Name
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-action="Track" asp-route-id="@order.OrderId" class="btn btn-info btn-sm me-1">
+                        <i class="fa-solid fa-route me-1"></i> Відстежити
+                    </a>
+                    @if (isAdmin)
+                    {
+                        <a asp-action="Edit" asp-route-id="@order.OrderId" class="btn btn-warning btn-sm me-1">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Редагувати
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@order.OrderId" class="btn btn-danger btn-sm">
+                            <i class="fa-solid fa-trash me-1"></i> Видалити
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

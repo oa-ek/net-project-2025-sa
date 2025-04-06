@@ -1,40 +1,34 @@
 ﻿@model LocalFood.Models.Order
 
 @{
-    ViewData["Title"] = "Відстеження замовлення";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Деталі замовлення";
 }
 
-<h2>Відстеження замовлення</h2>
+<h2 class="mb-4">Замовлення #@Model.OrderId</h2>
 
-<div>
-    <h4>Замовлення №@Model.OrderId</h4>
-    <p><strong>Клієнт:</strong> @Model.CustomerName</p>
-    <p><strong>Телефон:</strong> @Model.Phone</p>
-    <p><strong>Адреса:</strong> @Model.Address</p>
-    <p><strong>Дата:</strong> @Model.OrderDate.ToString("g")</p>
-    <p><strong>Ресторан:</strong> @Model.Restaurant?.Name</p>
-    <p><strong>Статус:</strong> @Model.OrderStatus?.Name</p>
-    <p><strong>Загальна сума:</strong> @Model.TotalAmount грн</p>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <p><strong><i class="fa-solid fa-info-circle me-1"></i> Статус:</strong> @Model.OrderStatus?.Name</p>
+        <p><strong><i class="fa-solid fa-user me-1"></i> Ім'я:</strong> @Model.CustomerName</p>
+        <p><strong><i class="fa-solid fa-phone me-1"></i> Телефон:</strong> @Model.Phone</p>
+        <p><strong><i class="fa-solid fa-location-dot me-1"></i> Адреса:</strong> @Model.Address</p>
+        <p><strong><i class="fa-solid fa-calendar me-1"></i> Дата:</strong> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+        <p><strong><i class="fa-solid fa-dollar-sign me-1"></i> Сума:</strong> @Model.TotalAmount.ToString("0.00") грн</p>
+    </div>
 </div>
 
-<div>
-    <h3>Склад замовлення</h3>
+<h4 class="mb-3">Страви:</h4>
 
-    <p>
-        <a asp-controller="OrderItems" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-primary">
-            Додати позицію
-        </a>
-    </p>
-
-    @if (Model.OrderItems != null && Model.OrderItems.Any())
-    {
-        <table class="table">
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <table class="table table-dark table-hover m-0">
             <thead>
                 <tr>
-                    <th>Страва</th>
+                    <th>Назва</th>
                     <th>Кількість</th>
                     <th>Ціна</th>
-                    <th>Дії</th>
+                    <th>Разом</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,21 +37,39 @@
                     <tr>
                         <td>@item.Dish?.Name</td>
                         <td>@item.Quantity</td>
-                        <td>@item.Price грн</td>
-                        <td>
-                            <a asp-controller="OrderItems" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">
-                                Видалити
-                            </a>
-                        </td>
+                        <td>@item.Price.ToString("0.00") грн</td>
+                        <td>@((item.Price * item.Quantity).ToString("0.00")) грн</td>
                     </tr>
                 }
             </tbody>
+
         </table>
-    }
-    else
-    {
-        <p class="text-muted">Страв у цьому замовленні поки що немає.</p>
-    }
+    </div>
 </div>
 
-<a asp-action="Index" class="btn btn-secondary">Назад</a>
+@if (User.IsInRole("Admin") || User.IsInRole("Courier"))
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="UpdateStatus" method="post">
+                <input type="hidden" name="orderId" value="@Model.OrderId" />
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fa-solid fa-sync-alt me-1"></i> Оновити статус
+                    </label>
+                    <select name="statusId" class="form-select">
+                        @foreach (var status in ViewBag.StatusList as List<SelectListItem>)
+                        {
+                            <option value="@status.Value" selected="@(Model.StatusId.ToString() == status.Value)">
+                                @status.Text
+                            </option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check me-1"></i> Оновити статус
+                </button>
+            </form>
+        </div>
+    </div>
+}

@@ -1,0 +1,122 @@
+﻿@model LocalFood.ViewModels.CheckoutViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Оформлення замовлення";
+}
+
+<h2 class="text-center mb-4">
+    <i class="fa-solid fa-clipboard-check me-2 text-success"></i> Оформлення замовлення
+</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger shadow-sm">
+        <i class="fa-solid fa-circle-exclamation me-1"></i> Будь ласка, виправте помилки:
+        <ul class="mt-2">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="card bg-dark text-light shadow-sm mb-5">
+    <div class="card-body">
+        <form asp-action="Checkout" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label fw-bold">
+                    <i class="fa-solid fa-user me-1"></i> Ім'я та прізвище
+                </label>
+                <input asp-for="FullName" class="form-control" placeholder="Введіть повне ім'я" required />
+                <span asp-validation-for="FullName" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label fw-bold">
+                    <i class="fa-solid fa-phone me-1"></i> Телефон
+                </label>
+                <input asp-for="Phone" class="form-control" placeholder="Ваш номер телефону" required />
+                <span asp-validation-for="Phone" class="text-warning"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label fw-bold">
+                    <i class="fa-solid fa-map-location-dot me-1"></i> Адреса доставки
+                </label>
+                <input asp-for="Address" id="addressInput" class="form-control" placeholder="Введіть адресу" required />
+                <span asp-validation-for="Address" class="text-warning"></span>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-muted">
+                    <i class="fa-solid fa-map-marked-alt me-1"></i> Або натисніть на мапі для вибору адреси:
+                </p>
+                <div id="map" class="rounded shadow-sm" style="height: 400px; border: 2px solid #444;"></div>
+            </div>
+
+            <!-- Приховані поля для координат -->
+            <input asp-for="Latitude" type="hidden" id="latitudeInput" />
+            <input asp-for="Longitude" type="hidden" id="longitudeInput" />
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success btn-lg px-4" id="submitBtn">
+                    <i class="fa-solid fa-paper-plane me-2"></i> Підтвердити замовлення
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const addressInput = document.getElementById("addressInput");
+            const latitudeInput = document.getElementById("latitudeInput");
+            const longitudeInput = document.getElementById("longitudeInput");
+
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://api.maptiler.com/maps/streets/style.json?key=v8pi6Yceq2CQ8UEckbB7',
+                center: [31.1656, 48.3794],
+                zoom: 6
+            });
+
+            let marker;
+
+            map.on('click', function (e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                if (marker) marker.remove();
+                marker = new maplibregl.Marker().setLngLat([lng, lat]).addTo(map);
+
+                latitudeInput.value = lat;
+                longitudeInput.value = lng;
+
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            addressInput.value = data.display_name;
+                        }
+                    });
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setCenter([lng, lat]);
+                    map.setZoom(13);
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="d-flex align-items-center">
+        <span class="me-2 text-dark">Привіт, @User.Identity?.Name</span>
+        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Вийти</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" asp-controller="Account" asp-action="Login">Увійти</a>
+        <a class="btn btn-outline-success btn-sm" asp-controller="Account" asp-action="Register">Реєстрація</a>
+    </div>
+}

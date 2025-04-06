@@ -1,14 +1,13 @@
 ﻿using LocalFood.Data;
 using LocalFood.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LocalFood.Controllers
 {
+    [Authorize] // Лише для авторизованих
     public class OrderItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,6 +24,9 @@ namespace LocalFood.Controllers
             var order = _context.Orders.Find(orderId);
             if (order == null) return NotFound();
 
+            // Можемо додати перевірку, що це замовлення належить поточному користувачу 
+            // або ж що поточний користувач - Admin, якщо потрібно.
+
             ViewBag.DishId = new SelectList(_context.Dishes, "DishId", "Name");
             return View(new OrderItem { OrderId = orderId });
         }
@@ -40,8 +42,11 @@ namespace LocalFood.Controllers
             _context.OrderItems.Add(orderItem);
             await _context.SaveChangesAsync();
 
-            // Оновлюємо загальну суму замовлення
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == orderItem.OrderId);
+            // Оновити суму
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == orderItem.OrderId);
+
             if (order != null)
             {
                 order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
@@ -56,11 +61,17 @@ namespace LocalFood.Controllers
             var orderItem = await _context.OrderItems.FindAsync(id);
             if (orderItem == null) return NotFound();
 
+            // Перевірка доступу (чи поточний користувач - власник/адмін).
+            // ...
+
             _context.OrderItems.Remove(orderItem);
             await _context.SaveChangesAsync();
 
-            // Оновлюємо загальну суму замовлення
-            var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == orderItem.OrderId);
+            // Оновити суму
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.OrderId == orderItem.OrderId);
+
             if (order != null)
             {
                 order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);

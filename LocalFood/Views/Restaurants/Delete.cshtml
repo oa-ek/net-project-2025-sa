@@ -1,14 +1,28 @@
 ﻿@model LocalFood.Models.Restaurant
+
 @{
-    ViewData["Title"] = "Видалити ресторан";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Видалити ресторан";
 }
-<h1>Видалити ресторан</h1>
-<p>Ви впевнені, що хочете видалити цей ресторан?</p>
-<h3>@Model.Name</h3>
-<p>@Model.Address</p>
-<p>@Model.Description</p>
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="RestaurantId" />
-    <button type="submit" class="btn btn-danger">Так, видалити</button>
-    <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
-</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4 text-center">
+        <h2 class="mb-4">
+            <i class="fa-solid fa-trash me-2"></i> Видалити ресторан
+        </h2>
+
+        <p class="mb-4" style="color: #ffcb9a;">
+            Ви дійсно хочете видалити ресторан "<strong>@Model.Name</strong>"?
+        </p>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="RestaurantId" />
+            <button type="submit" class="btn btn-danger me-2">
+                <i class="fa-solid fa-check me-1"></i> Так, видалити
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Ні, повернутися
+            </a>
+        </form>
+    </div>
+</div>

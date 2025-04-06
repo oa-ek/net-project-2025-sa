@@ -1,8 +1,83 @@
 ﻿@{
     ViewData["Title"] = "LocalFood - Головна";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Вітаємо в LocalFood!</h1>
-<p>Оберіть ресторан та замовте їжу онлайн.</p>
+<div class="container my-5">
+    <div class="text-center">
+        <h1 class="display-4 mb-4 text-light">
+            <i class="fa-solid fa-bowl-food me-2"></i> Вітаємо в <strong>LocalFood</strong>!
+        </h1>
+        <p class="lead text-warning">Оберіть ресторан та замовте їжу онлайн — швидко, зручно та смачно.</p>
+        <a class="btn btn-primary btn-lg mt-4" asp-controller="Restaurants" asp-action="Index">
+            <i class="fa-solid fa-utensils me-2"></i> Перейти до ресторанів
+        </a>
+    </div>
+</div>
 
+<canvas id="foodCanvas"></canvas>
 
+@section Scripts {
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script>
+        const canvas = document.getElementById("foodCanvas");
+        const stage = new createjs.Stage(canvas);
+        createjs.Touch.enable(stage);
+        createjs.Ticker.timingMode = createjs.Ticker.RAF;
+        createjs.Ticker.on("tick", tick);
+
+        const foodEmojis = [
+            "🍕", "🍔", "🍟", "🌭", "🍗", "🍖", "🥩", "🥓", "🍳", "🥚",
+            "🍞", "🥐", "🥯", "🥖", "🧀", "🥞", "🧇", "🥗", "🥙", "🥪",
+            "🌮", "🌯", "🥫", "🍝", "🍜", "🍲", "🍛", "🍣", "🍤", "🥟",
+            "🍚", "🍙", "🍘", "🍥", "🥠", "🍢", "🍡", "🍧", "🍨", "🍦",
+            "🥧", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🧃",
+            "🥤", "🧋", "🍩", "🍪", "🥜", "🌰", "🍎", "🍏", "🍊", "🍋",
+            "🍌", "🍉", "🍇", "🍓", "🫐", "🥝", "🍒", "🍍", "🥭", "🥑",
+            "🍆", "🥔", "🥕", "🌽", "🌶️", "🫑", "🥒", "🥬", "🧄", "🧅",
+            "🍠", "🍤", "🥥", "🍽️", "🥄", "🍴", "🍹", "🍺", "🍻", "🥂"
+        ];
+
+        const items = [];
+        const maxItems= 150;
+
+        function addFood(item) {
+            const emoji = foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
+            const text = new createjs.Text(emoji, "32px Arial", "#fff");
+            text.x = Math.random() * canvas.width;
+            text.y = -30;
+            text.speed = Math.random() * 2 + 1;
+            text.rotationSpeed = Math.random() * 3 - 1.5;
+            stage.addChild(text);
+            items.push(text);
+        }
+
+        function tick() {
+            if (items.length < maxItems) {
+                addFood();
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                item.y += item.speed;
+                item.rotation += item.rotationSpeed;
+
+                if (item.y > canvas.height + 50) {
+                    item.y = -30;
+                    item.x = Math.random() * canvas.width;
+                }
+            }
+
+            stage.update();
+        }
+
+        window.addEventListener("resize", handleResize);
+        function handleResize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            stage.update();
+        }
+
+        handleResize();
+    </script>
+}
