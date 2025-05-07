@@ -1,0 +1,50 @@
+﻿@page "/dishes/create"
+@using LocalFood.Client.Models
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Create Dish</h3>
+
+<EditForm Model="model" OnValidSubmit="Save">
+  <DataAnnotationsValidator />
+  <div class="mb-3">
+    <label>Name</label>
+    <InputText class="form-control" @bind-Value="model.Name" />
+  </div>
+  <div class="mb-3">
+    <label>Description</label>
+    <InputTextArea class="form-control" @bind-Value="model.Description" />
+  </div>
+  <div class="mb-3">
+    <label>Price</label>
+    <InputNumber class="form-control" @bind-Value="model.Price" />
+  </div>
+  <div class="mb-3">
+    <label>Restaurant</label>
+    <InputSelect class="form-control" @bind-Value="model.RestaurantId">
+      <option value="0">— select —</option>
+      @foreach (var r in restaurants)
+      {
+        <option value="@r.RestaurantId">@r.Name</option>
+      }
+    </InputSelect>
+  </div>
+  <button class="btn btn-success">Save</button>
+</EditForm>
+
+@code {
+  DishDto model = new();
+  List<RestaurantDto> restaurants;
+
+  protected override async Task OnInitializedAsync()
+  {
+    restaurants = await Http.GetFromJsonAsync<List<RestaurantDto>>("api/restaurants");
+  }
+
+  async Task Save()
+  {
+    await Http.PostAsJsonAsync("api/dishes", model);
+    Nav.NavigateTo("/dishes");
+  }
+}

@@ -1,0 +1,47 @@
+﻿@page "/restaurants"
+@using LocalFood.Client.Models
+@inject HttpClient Http
+
+<h3>Restaurants</h3>
+<a class="btn btn-primary mb-3" href="/restaurants/create">+ New Restaurant</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr><th>Name</th><th>Address</th><th></th></tr>
+    </thead>
+    <tbody>
+        @if (restaurants == null)
+        {
+            <tr><td colspan="3">Loading...</td></tr>
+        }
+        else
+        {
+            @foreach (var r in restaurants)
+            {
+                <tr>
+                    <td>@r.Name</td>
+                    <td>@r.Address</td>
+                    <td>
+                        <a class="btn btn-sm btn-secondary" href="/restaurants/edit/@r.RestaurantId">Edit</a>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(r.RestaurantId)">Del</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<RestaurantDto> restaurants;
+
+    protected override async Task OnInitializedAsync()
+    {
+        restaurants = await Http.GetFromJsonAsync<List<RestaurantDto>>("api/restaurants");
+    }
+
+    async Task Delete(int id)
+    {
+        await Http.DeleteAsync($"api/restaurants/{id}");
+        restaurants = await Http.GetFromJsonAsync<List<RestaurantDto>>("api/restaurants");
+    }
+}

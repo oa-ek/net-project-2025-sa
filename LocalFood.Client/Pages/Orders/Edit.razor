@@ -1,0 +1,62 @@
+﻿@page "/orders/edit/{Id:int}"
+@using LocalFood.Client.Models
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Edit Order</h3>
+
+<EditForm Model="model" OnValidSubmit="Update">
+  <DataAnnotationsValidator />
+  <div class="mb-3">
+    <label>Customer Name</label>
+    <InputText class="form-control" @bind-Value="model.CustomerName" />
+  </div>
+  <div class="mb-3">
+    <label>Phone</label>
+    <InputText class="form-control" @bind-Value="model.Phone" />
+  </div>
+  <div class="mb-3">
+    <label>Address</label>
+    <InputText class="form-control" @bind-Value="model.Address" />
+  </div>
+  <div class="mb-3">
+    <label>Restaurant</label>
+    <InputSelect class="form-control" @bind-Value="model.RestaurantId">
+      @foreach (var r in restaurants)
+      {
+        <option value="@r.RestaurantId">@r.Name</option>
+      }
+    </InputSelect>
+  </div>
+  <div class="mb-3">
+    <label>Status</label>
+    <InputSelect class="form-control" @bind-Value="model.StatusId">
+      @foreach (var s in statuses)
+      {
+        <option value="@s.StatusId">@s.Name</option>
+      }
+    </InputSelect>
+  </div>
+  <button class="btn btn-primary">Update</button>
+</EditForm>
+
+@code {
+  [Parameter] public int Id { get; set; }
+  OrderDto model;
+  List<RestaurantDto> restaurants;
+  List<OrderStatusDto> statuses;
+
+  protected override async Task OnInitializedAsync()
+  {
+    restaurants = await Http.GetFromJsonAsync<List<RestaurantDto>>("api/restaurants");
+    statuses = await Http.GetFromJsonAsync<List<OrderStatusDto>>("api/orderstatuses");
+    model = await Http.GetFromJsonAsync<OrderDto>($"api/orders/{Id}");
+  }
+
+  async Task Update()
+  {
+    await Http.PutAsJsonAsync($"api/orders/{Id}", model);
+    Nav.NavigateTo("/orders");
+  }
+}

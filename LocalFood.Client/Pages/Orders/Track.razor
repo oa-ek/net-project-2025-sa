@@ -1,0 +1,61 @@
+﻿@page "/orders/track/{Id:int}"
+@using LocalFood.Client.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Track Order @Id</h3>
+
+@if (order == null)
+{
+    <p>Loading…</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-2">Customer</dt>
+        <dd class="col-sm-10">@order.CustomerName</dd>
+        <dt class="col-sm-2">Address</dt>
+        <dd class="col-sm-10">@order.Address</dd>
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@statuses.First(s => s.StatusId == order.StatusId).Name</dd>
+        <dt class="col-sm-2">Total</dt>
+        <dd class="col-sm-10">@order.TotalAmount</dd>
+    </dl>
+
+    <a class="btn btn-primary mb-3" href="/orderitems/create/@Id">+ Add Item</a>
+
+    <table class="table">
+        <thead><tr><th>Dish</th><th>Qty</th><th>Price</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var oi in order.OrderItems)
+            {
+                <tr>
+                    <td>@oi.DishId</td>  @* якщо треба – додай масив зі списком страв *@
+                    <td>@oi.Quantity</td>
+                    <td>@oi.Price</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Remove(oi.Id)">Del</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    OrderDto order;
+    List<OrderStatusDto> statuses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        statuses = await Http.GetFromJsonAsync<List<OrderStatusDto>>("api/orderstatuses");
+        order = await Http.GetFromJsonAsync<OrderDto>($"api/orders/{Id}");
+    }
+
+    async Task Remove(int itemId)
+    {
+        await Http.DeleteAsync($"api/orderitems/{itemId}");
+        order = await Http.GetFromJsonAsync<OrderDto>($"api/orders/{Id}");
+    }
+}

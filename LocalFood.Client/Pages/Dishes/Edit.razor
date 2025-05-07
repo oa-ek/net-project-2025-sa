@@ -1,0 +1,52 @@
+﻿@page "/dishes/edit/{Id:int}"
+@using LocalFood.Client.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Edit Dish</h3>
+
+<EditForm Model="model" OnValidSubmit="Update">
+  <DataAnnotationsValidator />
+  <div class="mb-3">
+    <label>Name</label>
+    <InputText class="form-control" @bind-Value="model.Name" />
+  </div>
+  <div class="mb-3">
+    <label>Description</label>
+    <InputTextArea class="form-control" @bind-Value="model.Description" />
+  </div>
+  <div class="mb-3">
+    <label>Price</label>
+    <InputNumber class="form-control" @bind-Value="model.Price" />
+  </div>
+  <div class="mb-3">
+    <label>Restaurant</label>
+    <InputSelect class="form-control" @bind-Value="model.RestaurantId">
+      @foreach (var r in restaurants)
+      {
+        <option value="@r.RestaurantId">@r.Name</option>
+      }
+    </InputSelect>
+  </div>
+  <button class="btn btn-primary">Update</button>
+</EditForm>
+
+@code {
+  [Parameter] public int Id { get; set; }
+  DishDto model = new();
+  List<RestaurantDto> restaurants;
+
+  protected override async Task OnInitializedAsync()
+  {
+    restaurants = await Http.GetFromJsonAsync<List<RestaurantDto>>("api/restaurants");
+    model = await Http.GetFromJsonAsync<DishDto>($"api/dishes/{Id}");
+  }
+
+  async Task Update()
+  {
+    await Http.PutAsJsonAsync($"api/dishes/{Id}", model);
+    Nav.NavigateTo("/dishes");
+  }
+}

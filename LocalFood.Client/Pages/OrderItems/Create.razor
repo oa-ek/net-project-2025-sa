@@ -1,0 +1,52 @@
+﻿@page "/orderitems/create/{OrderId:int}"
+@using LocalFood.Client.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Add Item to Order @OrderId</h3>
+
+<EditForm Model="model" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Dish</label>
+        <InputSelect class="form-control" @bind-Value="model.DishId">
+            <option value="0">— select —</option>
+            @foreach (var d in dishes)
+            {
+                <option value="@d.DishId">@d.Name (@d.Price)</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label>Quantity</label>
+        <InputNumber class="form-control" @bind-Value="model.Quantity" />
+    </div>
+
+    <button class="btn btn-success">Add</button>
+</EditForm>
+
+@code {
+    [Parameter] public int OrderId { get; set; }
+
+    List<DishDto> dishes = new();
+    OrderItemDto model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // проставляємо зв’язок із замовленням
+        model.OrderId = OrderId;
+
+        // підвантажуємо страви
+        dishes = await Http.GetFromJsonAsync<List<DishDto>>("api/dishes");
+    }
+
+    async Task Save()
+    {
+        await Http.PostAsJsonAsync("api/orderitems", model);
+        Nav.NavigateTo($"/orders/track/{OrderId}");
+    }
+}

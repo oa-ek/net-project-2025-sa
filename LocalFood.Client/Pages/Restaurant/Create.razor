@@ -1,0 +1,34 @@
+﻿@page "/restaurants/create"
+@using LocalFood.Client.Models
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<h3>Create Restaurant</h3>
+
+<EditForm Model="model" OnValidSubmit="Save">
+  <DataAnnotationsValidator />
+  <div class="mb-3">
+    <label>Name</label>
+    <InputText class="form-control" @bind-Value="model.Name" />
+  </div>
+  <div class="mb-3">
+    <label>Address</label>
+    <InputText class="form-control" @bind-Value="model.Address" />
+  </div>
+  <div class="mb-3">
+    <label>Description</label>
+    <InputTextArea class="form-control" @bind-Value="model.Description" />
+  </div>
+  <button class="btn btn-success">Save</button>
+</EditForm>
+
+@code {
+  RestaurantDto model = new();
+
+  async Task Save()
+  {
+    await Http.PostAsJsonAsync("api/restaurants", model);
+    Nav.NavigateTo("/restaurants");
+  }
+}

@@ -1,0 +1,60 @@
+﻿@page "/orders"
+@using LocalFood.Client.Models
+@inject HttpClient Http
+
+<h3>Orders</h3>
+<a class="btn btn-primary mb-3" href="/orders/create">+ New Order</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (orders == null)
+        {
+            <tr><td colspan="6">Loading...</td></tr>
+        }
+        else
+        {
+            @foreach (var o in orders)
+            {
+                <tr>
+                    <td>@o.CustomerName</td>
+                    <td>@o.Phone</td>
+                    <td>@o.Address</td>
+                    <td>@statuses.First(s => s.StatusId == o.StatusId).Name</td>
+                    <td>@o.TotalAmount</td>
+                    <td>
+                        <a class="btn btn-sm btn-info" href="/orders/edit/@o.OrderId">Edit</a>
+                        <a class="btn btn-sm btn-secondary" href="/orders/track/@o.OrderId">Track</a>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(o.OrderId)">Del</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<OrderDto> orders;
+    List<OrderStatusDto> statuses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        statuses = await Http.GetFromJsonAsync<List<OrderStatusDto>>("api/orderstatuses");
+        orders = await Http.GetFromJsonAsync<List<OrderDto>>("api/orders");
+    }
+
+    async Task Delete(int id)
+    {
+        await Http.DeleteAsync($"api/orders/{id}");
+        orders = await Http.GetFromJsonAsync<List<OrderDto>>("api/orders");
+    }
+}
