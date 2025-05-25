@@ -1,0 +1,614 @@
+﻿@model LocalFood.ViewModels.ManageProfileViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Управління профілем";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <div class="avatar mx-auto mb-3" style="width: 100px; height: 100px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">@Model.Email</h5>
+                        <p class="text-muted mb-0">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <span class="badge bg-danger">Адміністратор</span>
+                            }
+                            else if (User.IsInRole("Manager"))
+                            {
+                                <span class="badge bg-warning">Менеджер ресторану</span>
+                            }
+                            else if (User.IsInRole("Courier"))
+                            {
+                                <span class="badge bg-info">Кур'єр</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary">Користувач</span>
+                            }
+                        </p>
+                    </div>
+
+                    <div class="list-group list-group-flush">
+                        <a href="#profile" class="list-group-item list-group-item-action active border-0 rounded-3 mb-2">
+                            <i class="fa-solid fa-user me-2"></i> Профіль
+                        </a>
+                        <a href="#security" class="list-group-item list-group-item-action border-0 rounded-3 mb-2">
+                            <i class="fa-solid fa-lock me-2"></i> Безпека
+                        </a>
+                        <a href="#orders" class="list-group-item list-group-item-action border-0 rounded-3 mb-2">
+                            <i class="fa-solid fa-clipboard-list me-2"></i> Замовлення
+                        </a>
+                        <a href="#addresses" class="list-group-item list-group-item-action border-0 rounded-3">
+                            <i class="fa-solid fa-map-marker-alt me-2"></i> Адреси
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Статистика</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Замовлень:</span>
+                        <span class="fw-bold">@Model.OrdersCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Витрачено:</span>
+                        <span class="fw-bold text-primary">@Model.TotalSpent.ToString("0.00") грн</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Дата реєстрації:</span>
+                        <span class="fw-bold">@Model.RegistrationDate.ToString("dd.MM.yyyy")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div id="profile" class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa-solid fa-user me-2 text-primary"></i> Особиста інформація
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.ProfileUpdateSuccess != null)
+                    {
+                        <div class="alert alert-success mb-4">
+                            <i class="fa-solid fa-check-circle me-2"></i> @ViewBag.ProfileUpdateSuccess
+                        </div>
+                    }
+
+                    <form asp-action="UpdateProfile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label asp-for="FirstName" class="form-label fw-bold">Ім'я</label>
+                                <input asp-for="FirstName" class="form-control form-control-lg" placeholder="Введіть ім'я" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label fw-bold">Прізвище</label>
+                                <input asp-for="LastName" class="form-control form-control-lg" placeholder="Введіть прізвище" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold">Телефон</label>
+                            <input asp-for="PhoneNumber" class="form-control form-control-lg" placeholder="Введіть номер телефону" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label fw-bold">Email</label>
+                            <input asp-for="Email" class="form-control form-control-lg" readonly />
+                            <small class="text-muted">Email не можна змінити</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save me-1"></i> Зберегти зміни
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="security" class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa-solid fa-lock me-2 text-primary"></i> Безпека
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.PasswordUpdateSuccess != null)
+                    {
+                        <div class="alert alert-success mb-4">
+                            <i class="fa-solid fa-check-circle me-2"></i> @ViewBag.PasswordUpdateSuccess
+                        </div>
+                    }
+
+                    <form asp-action="ChangePassword" method="post">
+                        <div class="mb-4">
+                            <label for="CurrentPassword" class="form-label fw-bold">Поточний пароль</label>
+                            <input type="password" id="CurrentPassword" name="CurrentPassword" class="form-control form-control-lg" placeholder="Введіть поточний пароль" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="NewPassword" class="form-label fw-bold">Новий пароль</label>
+                            <input type="password" id="NewPassword" name="NewPassword" class="form-control form-control-lg" placeholder="Введіть новий пароль" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="ConfirmPassword" class="form-label fw-bold">Підтвердження паролю</label>
+                            <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control form-control-lg" placeholder="Підтвердіть новий пароль" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-key me-1"></i> Змінити пароль
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="orders" class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa-solid fa-clipboard-list me-2 text-primary"></i> Останні замовлення
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentOrders == null || !Model.RecentOrders.Any())
+                    {
+                        <div class="p-4 text-center">
+                            <i class="fa-solid fa-clipboard-list text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="mb-0">У вас ще немає замовлень</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="py-3 ps-4">ID</th>
+                                        <th class="py-3">Дата</th>
+                                        <th class="py-3">Статус</th>
+                                        <th class="py-3">Ресторан</th>
+                                        <th class="py-3 text-end">Сума</th>
+                                        <th class="py-3 text-center pe-4">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td class="py-3 ps-4">
+                                                <span class="badge bg-primary rounded-pill px-3 py-2">#@order.OrderId</span>
+                                            </td>
+                                            <td class="py-3">@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td class="py-3">
+                                                <span class="badge @(order.OrderStatus?.Name == "Доставлено" ? "bg-success" : order.OrderStatus?.Name == "Доставляється" ? "bg-warning" : "bg-info") rounded-pill px-3 py-2">
+                                                    @order.OrderStatus?.Name
+                                                </span>
+                                            </td>
+                                            <td class="py-3">@order.Restaurant?.Name</td>
+                                            <td class="py-3 text-end fw-bold">@order.TotalAmount.ToString("0.00") грн</td>
+                                            <td class="py-3 text-center pe-4">
+                                                <a asp-controller="Orders" asp-action="Track" asp-route-id="@order.OrderId" class="btn btn-primary btn-sm">
+                                                    <i class="fa-solid fa-eye me-1"></i> Деталі
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="p-3 text-center">
+                            <a asp-controller="Orders" asp-action="MyOrders" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-clipboard-list me-1"></i> Всі замовлення
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div id="addresses" class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-transparent py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fa-solid fa-map-marker-alt me-2 text-primary"></i> Збережені адреси
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                            <i class="fa-solid fa-plus me-1"></i> Додати адресу
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.SavedAddresses == null || !Model.SavedAddresses.Any())
+                    {
+                        <div class="p-4 text-center">
+                            <i class="fa-solid fa-map-marker-alt text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="mb-0">У вас ще немає збережених адрес</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var address in Model.SavedAddresses)
+                            {
+                                <div class="list-group-item border-0 p-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">@address.Name</h6>
+                                            <p class="text-muted mb-0">@address.FullAddress</p>
+                                        </div>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-address"
+                                                    data-id="@address.Id"
+                                                    data-name="@address.Name"
+                                                    data-address="@address.FullAddress">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            <form asp-action="DeleteAddress" method="post">
+                                                <input type="hidden" name="addressId" value="@address.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для додавання адреси -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Додати адресу</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="AddAddress" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addressName" class="form-label fw-bold">Назва адреси</label>
+                        <input type="text" class="form-control" id="addressName" name="name" placeholder="Наприклад: Дім, Робота, тощо" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="fullAddress" class="form-label fw-bold">Повна адреса</label>
+                        <input type="text" class="form-control" id="fullAddress" name="fullAddress" placeholder="Введіть повну адресу" required />
+                    </div>
+                    <div id="map" class="rounded-3 mb-3" style="height: 300px;"></div>
+                    <input type="hidden" id="latitude" name="latitude" />
+                    <input type="hidden" id="longitude" name="longitude" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для редагування адреси -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Редагувати адресу</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="UpdateAddress" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editAddressId" name="addressId" />
+                    <div class="mb-3">
+                        <label for="editAddressName" class="form-label fw-bold">Назва адреси</label>
+                        <input type="text" class="form-control" id="editAddressName" name="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFullAddress" class="form-label fw-bold">Повна адреса</label>
+                        <input type="text" class="form-control" id="editFullAddress" name="fullAddress" required />
+                    </div>
+                    <div id="editMap" class="rounded-3 mb-3" style="height: 300px;"></div>
+                    <input type="hidden" id="editLatitude" name="latitude" />
+                    <input type="hidden" id="editLongitude" name="longitude" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Прокрутка до секції при кліку на посилання в бічному меню
+            document.querySelectorAll('.list-group-item-action').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Видаляємо активний клас з усіх посилань
+                    document.querySelectorAll('.list-group-item-action').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Додаємо активний клас до поточного посилання
+                    this.classList.add('active');
+
+                    // Отримуємо ID секції
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+
+                    // Прокручуємо до секції з плавною анімацією
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Ініціалізація карти для додавання адреси
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://api.maptiler.com/maps/streets/style.json?key=v8pi6Yceq2CQ8UEckbB7',
+                center: [31.1656, 48.3794],
+                zoom: 13
+            });
+
+            // Додаємо елементи керування
+            map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+            let marker;
+
+            map.on('click', function(e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+
+                if (marker) marker.remove();
+                marker = new maplibregl.Marker({
+                    color: '#ff6b6b',
+                    draggable: true
+                }).setLngLat([lng, lat]).addTo(map);
+
+                marker.on('dragend', function() {
+                    const lngLat = marker.getLngLat();
+                    document.getElementById('latitude').value = lngLat.lat;
+                    document.getElementById('longitude').value = lngLat.lng;
+
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lngLat.lat}&lon=${lngLat.lng}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                document.getElementById('fullAddress').value = data.display_name;
+                            }
+                        });
+                });
+
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            document.getElementById('fullAddress').value = data.display_name;
+                        }
+                    });
+            });
+
+            // Пошук адреси при введенні
+            document.getElementById('fullAddress').addEventListener('input', debounce(function() {
+                const address = this.value;
+                if (address.length > 3) {
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lng = parseFloat(data[0].lon);
+
+                                document.getElementById('latitude').value = lat;
+                                document.getElementById('longitude').value = lng;
+
+                                if (marker) marker.remove();
+                                marker = new maplibregl.Marker({
+                                    color: '#ff6b6b',
+                                    draggable: true
+                                }).setLngLat([lng, lat]).addTo(map);
+
+                                map.flyTo({
+                                    center: [lng, lat],
+                                    zoom: 15,
+                                    essential: true
+                                });
+                            }
+                        });
+                }
+            }, 500));
+
+            // Ініціалізація карти для редагування адреси
+            const editMap = new maplibregl.Map({
+                container: 'editMap',
+                style: 'https://api.maptiler.com/maps/streets/style.json?key=v8pi6Yceq2CQ8UEckbB7',
+                center: [31.1656, 48.3794],
+                zoom: 13
+            });
+
+            // Додаємо елементи керування
+            editMap.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+            let editMarker;
+
+            editMap.on('click', function(e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                document.getElementById('editLatitude').value = lat;
+                document.getElementById('editLongitude').value = lng;
+
+                if (editMarker) editMarker.remove();
+                editMarker = new maplibregl.Marker({
+                    color: '#ff6b6b',
+                    draggable: true
+                }).setLngLat([lng, lat]).addTo(editMap);
+
+                editMarker.on('dragend', function() {
+                    const lngLat = editMarker.getLngLat();
+                    document.getElementById('editLatitude').value = lngLat.lat;
+                    document.getElementById('editLongitude').value = lngLat.lng;
+
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lngLat.lat}&lon=${lngLat.lng}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                document.getElementById('editFullAddress').value = data.display_name;
+                            }
+                        });
+                });
+
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            document.getElementById('editFullAddress').value = data.display_name;
+                        }
+                    });
+            });
+
+            // Пошук адреси при редагуванні
+            document.getElementById('editFullAddress').addEventListener('input', debounce(function() {
+                const address = this.value;
+                if (address.length > 3) {
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lng = parseFloat(data[0].lon);
+
+                                document.getElementById('editLatitude').value = lat;
+                                document.getElementById('editLongitude').value = lng;
+
+                                if (editMarker) editMarker.remove();
+                                editMarker = new maplibregl.Marker({
+                                    color: '#ff6b6b',
+                                    draggable: true
+                                }).setLngLat([lng, lat]).addTo(editMap);
+
+                                editMap.flyTo({
+                                    center: [lng, lat],
+                                    zoom: 15,
+                                    essential: true
+                                });
+                            }
+                        });
+                }
+            }, 500));
+
+            // Обробник для кнопок редагування адреси
+            document.querySelectorAll('.edit-address').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const name = this.getAttribute('data-name');
+                    const address = this.getAttribute('data-address');
+
+                    document.getElementById('editAddressId').value = id;
+                    document.getElementById('editAddressName').value = name;
+                    document.getElementById('editFullAddress').value = address;
+
+                    // Отримуємо координати адреси
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lng = parseFloat(data[0].lon);
+
+                                document.getElementById('editLatitude').value = lat;
+                                document.getElementById('editLongitude').value = lng;
+
+                                if (editMarker) editMarker.remove();
+                                editMarker = new maplibregl.Marker({
+                                    color: '#ff6b6b',
+                                    draggable: true
+                                }).setLngLat([lng, lat]).addTo(editMap);
+
+                                editMap.flyTo({
+                                    center: [lng, lat],
+                                    zoom: 15,
+                                    essential: true
+                                });
+                            }
+                        });
+
+                    // Відкриваємо модальне вікно
+                    const modal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+                    modal.show();
+                });
+            });
+
+            // Функція для затримки виконання (debounce)
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
+
+            // Геолокація при відкритті модального вікна
+            document.getElementById('addAddressModal').addEventListener('shown.bs.modal', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+
+                        map.setCenter([lng, lat]);
+                        map.setZoom(15);
+
+                        if (marker) marker.remove();
+                        marker = new maplibregl.Marker({
+                            color: '#ff6b6b',
+                            draggable: true
+                        }).setLngLat([lng, lat]).addTo(map);
+
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data && data.display_name) {
+                                    document.getElementById('fullAddress').value = data.display_name;
+                                }
+                            });
+                    });
+                }
+            });
+        });
+    </script>
+}

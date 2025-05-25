@@ -1,54 +1,73 @@
-﻿@model LocalFood.Models.Restaurant
-
+﻿@model LocalFood.ViewModels.RestaurantCreateViewModel
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Створити ресторан";
 }
 
-<h2 class="mb-4">
-    <i class="fa-solid fa-plus me-2"></i> Створити ресторан
-</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4 fw-bold text-center">
+                <i class="fa-solid fa-plus me-2 text-primary"></i> Створити ресторан
+            </h2>
 
-<div class="card shadow-sm">
-    <div class="card-body p-4">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label fw-bold"></label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fa-solid fa-signature text-primary"></i>
-                    </span>
-                    <input asp-for="Name" class="form-control" placeholder="Назва ресторану" />
+            <div class="card shadow-lg border-0 rounded-4 mb-5">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold">
+                                <i class="fa-solid fa-signature me-1"></i> Назва ресторану
+                            </label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Введіть назву ресторану" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Address" class="form-label fw-bold">
+                                <i class="fa-solid fa-location-dot me-1"></i> Адреса
+                            </label>
+                            <input asp-for="Address" class="form-control form-control-lg" placeholder="Введіть адресу ресторану" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">
+                                <i class="fa-solid fa-comment me-1"></i> Опис
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Введіть опис ресторану, особливості кухні, години роботи тощо"></textarea>
+                        </div>
+
+                        <div class="mb-5">
+                            <label asp-for="UploadImage" class="form-label fw-bold">
+                                <i class="fa-solid fa-image me-1"></i> Фото ресторану
+                            </label>
+                            <input asp-for="UploadImage" type="file" class="form-control form-control-lg" />
+                            <span asp-validation-for="UploadImage" class="text-danger"></span>
+                            <small class="text-muted">Рекомендований розмір: 1200x600 пікселів. Максимальний розмір: 5MB.</small>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg py-3">
+                                <i class="fa-solid fa-circle-check me-2"></i> Створити ресторан
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <span asp-validation-for="Name" class="text-warning"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label fw-bold"></label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fa-solid fa-location-dot text-primary"></i>
-                    </span>
-                    <input asp-for="Address" class="form-control" placeholder="Адреса ресторану" />
-                </div>
-                <span asp-validation-for="Address" class="text-warning"></span>
+            <div class="text-center">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Повернутися до списку
+                </a>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label fw-bold"></label>
-                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Опис ресторану"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-image me-1"></i> Фото ресторану
-                </label>
-                <input type="file" name="UploadImage" class="form-control" />
-            </div>
-
-            <button type="submit" class="btn btn-success w-100">
-                <i class="fa-solid fa-circle-check me-1"></i> Створити
-            </button>
-        </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

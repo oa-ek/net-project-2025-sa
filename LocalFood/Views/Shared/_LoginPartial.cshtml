@@ -2,19 +2,62 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <div class="d-flex align-items-center">
-        <span class="me-2 text-dark">Привіт, @User.Identity?.Name</span>
-        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-            <button type="submit" class="btn btn-outline-secondary btn-sm">Вийти</button>
-        </form>
-    </div>
-}
-else
-{
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-primary btn-sm" asp-controller="Account" asp-action="Login">Увійти</a>
-        <a class="btn btn-outline-success btn-sm" asp-controller="Account" asp-action="Register">Реєстрація</a>
-    </div>
-}
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-circle-user me-1"></i> @User.Identity?.Name
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" aria-labelledby="userDropdown">
+                <li>
+                    <span class="dropdown-item-text text-muted small px-4 py-2">
+                        <i class="fa-solid fa-user-tag me-1"></i>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span>Адміністратор</span>
+                        }
+                        else if (User.IsInRole("Manager"))
+                        {
+                            <span>Менеджер ресторану</span>
+                        }
+                        else if (User.IsInRole("Courier"))
+                        {
+                            <span>Кур'єр</span>
+                        }
+                        else
+                        {
+                            <span>Користувач</span>
+                        }
+                    </span>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item px-4 py-2" asp-controller="Account" asp-action="Manage">
+                        <i class="fa-solid fa-gear me-2"></i> Налаштування
+                    </a>
+                </li>
+                <li>
+                    <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="dropdown-item text-danger px-4 py-2">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Вийти
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Account" asp-action="Register">
+                <i class="fa-solid fa-user-plus me-1"></i> Реєстрація
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Account" asp-action="Login">
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Вхід
+            </a>
+        </li>
+    }
+</ul>

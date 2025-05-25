@@ -5,62 +5,102 @@
     ViewBag.Title = "Доставка замовлень";
 }
 
-<h1 class="mb-4">Доставка замовлень</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4 fw-bold">
+                <i class="fa-solid fa-truck-fast me-2 text-primary"></i> Доставка замовлень
+            </h1>
 
-<div id="map" class="rounded mb-4" style="height: 500px; border: 2px solid #444;"></div>
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-body p-0">
+                    <div id="map" class="rounded-4" style="height: 500px;"></div>
+                </div>
+            </div>
 
-<div class="card shadow-sm bg-dark text-light mb-4">
-    <div class="card-body">
-        <table class="table table-dark table-bordered w-100">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Клієнт</th>
-                    <th>Адреса</th>
-                    <th>Статус</th>
-                    <th>Ресторан</th>
-                    <th>Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var order in Model)
-                {
-                    var isMine = order.CourierId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                    <tr>
-                        <td>@order.OrderId</td>
-                        <td>@order.CustomerName</td>
-                        <td>@order.Address</td>
-                        <td>@order.OrderStatus?.Name</td>
-                        <td>@order.Restaurant?.Name</td>
-                        <td>
-                            @if (isMine)
-                            {
-                                <span class="badge bg-success mb-1">Моє замовлення</span>
-
-                                <br />
-                            }
-                            <button class="btn btn-sm btn-outline-primary show-route mb-1"
-                                    data-restaurant="@order.Restaurant?.Address"
-                                    data-customer="@order.Address">
-                                <i class="fa-solid fa-map me-1"></i> Маршрут
-                            </button>
-                            <form asp-action="StartDelivery" method="post" style="display:inline;">
-                                <input type="hidden" name="orderId" value="@order.OrderId" />
-                                <button type="submit" class="btn btn-sm btn-warning mb-1">
-                                    <i class="fa-solid fa-play me-1"></i> Почати
-                                </button>
-                            </form>
-                            <form asp-action="CompleteDelivery" method="post" style="display:inline;">
-                                <input type="hidden" name="orderId" value="@order.OrderId" />
-                                <button type="submit" class="btn btn-sm btn-success mb-1">
-                                    <i class="fa-solid fa-check me-1"></i> Завершити
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3 ps-4">ID</th>
+                                    <th class="py-3">Клієнт</th>
+                                    <th class="py-3">Адреса</th>
+                                    <th class="py-3">Статус</th>
+                                    <th class="py-3">Ресторан</th>
+                                    <th class="py-3 text-end pe-4">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    var isMine = order.CourierId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                                    <tr>
+                                        <td class="py-3 ps-4">
+                                            <span class="badge bg-primary rounded-pill px-3 py-2">#@order.OrderId</span>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar me-3" style="width: 40px; height: 40px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fa-solid fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">@order.CustomerName</h6>
+                                                    <small class="text-muted">@order.Phone</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-location-dot me-2 text-danger"></i>
+                                                <span>@(order.Address?.Length > 30 ? order.Address.Substring(0, 30) + "..." : order.Address)</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="badge @(order.OrderStatus?.Name == "Доставляється" ? "bg-warning" : order.OrderStatus?.Name == "Доставлено" ? "bg-success" : "bg-secondary") rounded-pill px-3 py-2">
+                                                @order.OrderStatus?.Name
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa-solid fa-store me-2 text-primary"></i>
+                                                <span>@order.Restaurant?.Name</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-end pe-4">
+                                            @if (isMine)
+                                            {
+                                                <span class="badge bg-success mb-2 d-block">Моє замовлення</span>
+                                            }
+                                            <div class="btn-group">
+                                                <button class="btn btn-outline-primary btn-sm show-route"
+                                                        data-restaurant="@order.Restaurant?.Address"
+                                                        data-customer="@order.Address">
+                                                    <i class="fa-solid fa-map me-1"></i> Маршрут
+                                                </button>
+                                                <form asp-action="StartDelivery" method="post" class="d-inline">
+                                                    <input type="hidden" name="orderId" value="@order.OrderId" />
+                                                    <button type="submit" class="btn btn-warning btn-sm">
+                                                        <i class="fa-solid fa-play me-1"></i> Почати
+                                                    </button>
+                                                </form>
+                                                <form asp-action="CompleteDelivery" method="post" class="d-inline">
+                                                    <input type="hidden" name="orderId" value="@order.OrderId" />
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="fa-solid fa-check me-1"></i> Завершити
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -76,6 +116,9 @@
             zoom: 5
         });
 
+        // Додаємо елементи керування
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
         async function getCoordinates(address) {
             const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
             const data = await response.json();
@@ -86,6 +129,15 @@
         }
 
         async function showRoute(restaurantAddress, customerAddress) {
+            // Очищаємо попередні маркери та маршрути
+            const markers = document.querySelectorAll('.maplibregl-marker');
+            markers.forEach(marker => marker.remove());
+
+            if (map.getSource('route')) {
+                map.removeLayer('route');
+                map.removeSource('route');
+            }
+
             const from = await getCoordinates(restaurantAddress);
             const to = await getCoordinates(customerAddress);
 
@@ -96,8 +148,20 @@
 
             map.flyTo({ center: from, zoom: 12 });
 
-            new maplibregl.Marker({ color: 'green' }).setLngLat(from).addTo(map);
-            new maplibregl.Marker({ color: 'red' }).setLngLat(to).addTo(map);
+            // Додаємо маркери з попапами
+            const restaurantMarker = new maplibregl.Marker({ color: '#06d6a0' })
+                .setLngLat(from)
+                .setPopup(new maplibregl.Popup({ offset: 25 })
+                    .setHTML(`<h5>Ресторан</h5><p>${restaurantAddress}</p>`))
+                .addTo(map);
+
+            restaurantMarker.togglePopup(); // Відкриваємо попап для ресторану
+
+            const customerMarker = new maplibregl.Marker({ color: '#ef476f' })
+                .setLngLat(to)
+                .setPopup(new maplibregl.Popup({ offset: 25 })
+                    .setHTML(`<h5>Клієнт</h5><p>${customerAddress}</p>`))
+                .addTo(map);
 
             const directionsUrl = `https://router.project-osrm.org/route/v1/driving/${from[0]},${from[1]};${to[0]},${to[1]}?overview=full&geometries=geojson`;
 
@@ -125,10 +189,31 @@
                     type: 'line',
                     source: 'route',
                     paint: {
-                        'line-color': '#0074D9',
-                        'line-width': 4
+                        'line-color': '#ff6b6b',
+                        'line-width': 6,
+                        'line-opacity': 0.8
                     }
                 });
+
+                // Додаємо інформацію про маршрут
+                const distance = (routeData.routes[0].distance / 1000).toFixed(2); // км
+                const duration = Math.round(routeData.routes[0].duration / 60); // хвилини
+
+                const bounds = new maplibregl.LngLatBounds(from, to);
+                map.fitBounds(bounds, { padding: 100 });
+
+                // Додаємо інформаційний блок
+                const infoElement = document.createElement('div');
+                infoElement.className = 'route-info';
+                infoElement.innerHTML = `
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: white; padding: 10px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1;">
+                        <h5 class="mb-2">Інформація про маршрут</h5>
+                        <p class="mb-1"><strong>Відстань:</strong> ${distance} км</p>
+                        <p class="mb-0"><strong>Час:</strong> ~${duration} хв</p>
+                    </div>
+                `;
+
+                document.getElementById('map').appendChild(infoElement);
             }
         }
 
@@ -139,5 +224,35 @@
                 showRoute(restaurant, customer);
             });
         });
+
+        // Показуємо всі замовлення на карті при завантаженні
+        async function showAllOrders() {
+            const orders = @Html.Raw(Json.Serialize(Model));
+
+            for (const order of orders) {
+                if (order.restaurant && order.restaurant.address && order.address) {
+                    const restaurantCoords = await getCoordinates(order.restaurant.address);
+                    const customerCoords = await getCoordinates(order.address);
+
+                    if (restaurantCoords) {
+                        new maplibregl.Marker({ color: '#06d6a0' })
+                            .setLngLat(restaurantCoords)
+                            .setPopup(new maplibregl.Popup({ offset: 25 })
+                                .setHTML(`<h5>Ресторан</h5><p>${order.restaurant.name}</p><p>${order.restaurant.address}</p>`))
+                            .addTo(map);
+                    }
+
+                    if (customerCoords) {
+                        new maplibregl.Marker({ color: '#ef476f' })
+                            .setLngLat(customerCoords)
+                            .setPopup(new maplibregl.Popup({ offset: 25 })
+                                .setHTML(`<h5>Клієнт</h5><p>${order.customerName}</p><p>${order.address}</p>`))
+                            .addTo(map);
+                    }
+                }
+            }
+        }
+
+        map.on('load', showAllOrders);
     </script>
 }

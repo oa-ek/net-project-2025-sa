@@ -4,66 +4,82 @@
     ViewBag.Title = "Реєстрація";
 }
 
-<div class="container my-5">
-    <div class="row justify-content-center align-items-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="text-center mb-4">
-                        <i class="fa-solid fa-user-plus me-2"></i> Реєстрація
-                    </h2>
-                    <form asp-action="Register" method="post">
-                        @Html.AntiForgeryToken()
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label fw-bold">
-                                <i class="fa-solid fa-envelope me-1"></i> Email
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-envelope text-primary"></i>
-                                </span>
-                                <input asp-for="Email" class="form-control" placeholder="Введіть email" />
+<div class="auth-container">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="row g-0 shadow-lg rounded-4 overflow-hidden">
+                    <!-- Left side - Illustration -->
+                    <div class="col-md-5 d-none d-md-block auth-sidebar" style="background: linear-gradient(135deg, var(--success-color) 0%, #04b389 100%);">
+                        <div class="d-flex flex-column justify-content-center align-items-center h-100 p-5 position-relative">
+                            <div class="text-center mb-5">
+                                <i class="fa-solid fa-utensils text-white" style="font-size: 5rem;"></i>
                             </div>
-                            <span asp-validation-for="Email" class="text-warning"></span>
+                            <h2 class="text-white fw-bold mb-4" style="font-size: 2.2rem; letter-spacing: -0.5px;">Система доставки їжі</h2>
+                            <p class="text-white-50 mb-0 fs-5">Приєднуйтесь до нашої преміальної системи доставки та отримуйте найкращий сервіс</p>
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label fw-bold">
-                                <i class="fa-solid fa-key me-1"></i> Пароль
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-key text-primary"></i>
-                                </span>
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Введіть пароль" />
+                    <!-- Right side - Registration form -->
+                    <div class="col-md-7 auth-card">
+                        <div class="p-5">
+                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                <h1 class="text-white fw-bold m-0" style="font-size: 2.5rem; letter-spacing: -0.5px;">Реєстрація</h1>
+                                <div class="d-md-none">
+                                    <i class="fa-solid fa-utensils text-white" style="font-size: 2.5rem;"></i>
+                                </div>
                             </div>
-                            <span asp-validation-for="Password" class="text-warning"></span>
-                        </div>
 
-                        <div class="mb-3">
-                            <label asp-for="ConfirmPassword" class="form-label fw-bold">
-                                <i class="fa-solid fa-key me-1"></i> Підтвердження паролю
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-key text-primary"></i>
-                                </span>
-                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Підтвердіть пароль" />
-                            </div>
-                            <span asp-validation-for="ConfirmPassword" class="text-warning"></span>
-                        </div>
+                            <form asp-action="Register" method="post">
+                                @Html.AntiForgeryToken()
 
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fa-solid fa-circle-check me-1"></i> Зареєструватися
-                        </button>
+                                <div class="mb-4">
+                                    <label asp-for="Email" class="form-label fw-bold text-white-50 mb-3">
+                                        <i class="fa-solid fa-envelope me-1"></i> Email
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input asp-for="Email" class="form-control form-control-lg py-3" placeholder="Введіть email" />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger small mt-2 d-block"></span>
+                                </div>
 
-                        <div class="mt-3 text-center">
-                            <a asp-action="Login">
-                                <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Вже маєте акаунт? Увійти
-                            </a>
+                                <div class="mb-4">
+                                    <label asp-for="Password" class="form-label fw-bold text-white-50 mb-3">
+                                        <i class="fa-solid fa-key me-1"></i> Пароль
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input asp-for="Password" type="password" class="form-control form-control-lg py-3" placeholder="Введіть пароль" />
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger small mt-2 d-block"></span>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label asp-for="ConfirmPassword" class="form-label fw-bold text-white-50 mb-3">
+                                        <i class="fa-solid fa-key me-1"></i> Підтвердження паролю
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control form-control-lg py-3" placeholder="Підтвердіть пароль" />
+                                    </div>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small mt-2 d-block"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-lg w-100 fw-bold py-3 position-relative overflow-hidden mb-4" style="background: linear-gradient(45deg, var(--success-color) 0%, #04b389 100%); border: none; border-radius: 12px;">
+                                    <span class="position-relative z-index-1">
+                                        <i class="fa-solid fa-circle-check me-2"></i> Зареєструватися
+                                    </span>
+                                </button>
+
+                                <div class="text-center">
+                                    <a asp-action="Login" class="text-decoration-none text-white-50 hover-text-white">
+                                        <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Вже маєте акаунт? Увійти
+                                    </a>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="text-white-50">© 2025 LocalFood. Всі права захищено.</p>
                 </div>
             </div>
         </div>

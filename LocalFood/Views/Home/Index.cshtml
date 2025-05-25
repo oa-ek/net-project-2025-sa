@@ -4,13 +4,176 @@
 }
 
 <div class="container my-5">
-    <div class="text-center">
-        <h1 class="display-4 mb-4 text-light">
-            <i class="fa-solid fa-bowl-food me-2"></i> Вітаємо в <strong>LocalFood</strong>!
-        </h1>
-        <p class="lead text-warning">Оберіть ресторан та замовте їжу онлайн — швидко, зручно та смачно.</p>
-        <a class="btn btn-primary btn-lg mt-4" asp-controller="Restaurants" asp-action="Index">
-            <i class="fa-solid fa-utensils me-2"></i> Перейти до ресторанів
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <h1 class="display-4 fw-bold mb-4" style="line-height: 1.2;">
+                Смачна їжа <span class="text-primary">доставлена</span> прямо до ваших дверей
+            </h1>
+            <p class="lead mb-4">Замовляйте улюблені страви з найкращих ресторанів вашого міста. Швидка доставка, зручна оплата та неперевершений смак!</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a class="btn btn-primary btn-lg px-4 py-3" asp-controller="Restaurants" asp-action="Index">
+                    <i class="fa-solid fa-utensils me-2"></i> Перейти до ресторанів
+                </a>
+                <a class="btn btn-outline-secondary btn-lg px-4 py-3" href="#features">
+                    <i class="fa-solid fa-circle-info me-2"></i> Дізнатися більше
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="position-relative">
+                <div style="width: 300px; height: 300px; background: linear-gradient(45deg, var(--primary-color) 0%, var(--primary-dark) 100%); border-radius: 50%; filter: blur(70px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; z-index: -1;"></div>
+                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1000" alt="Смачна їжа" class="img-fluid rounded-4 shadow-lg" style="transform: rotate(2deg);" />
+                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1000" alt="Піца" class="img-fluid rounded-4 shadow-lg position-absolute" style="width: 200px; bottom: -50px; right: -30px; transform: rotate(-5deg); z-index: 1;" />
+                <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000" alt="Десерт" class="img-fluid rounded-4 shadow-lg position-absolute" style="width: 150px; top: -30px; left: -20px; transform: rotate(8deg); z-index: 1;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5 py-5" id="features">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-3">Чому обирають нас</h2>
+        <p class="lead text-muted">Ми пропонуємо найкращий сервіс доставки їжі</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <div class="d-inline-block position-relative">
+                            <div style="width: 70px; height: 70px; background: rgba(var(--bs-primary-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                            <i class="fa-solid fa-truck-fast text-primary" style="font-size: 2.5rem; position: relative;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Швидка доставка</h4>
+                    <p class="text-muted mb-0">Ми доставляємо ваше замовлення в найкоротші терміни, щоб їжа залишалася гарячою та смачною.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <div class="d-inline-block position-relative">
+                            <div style="width: 70px; height: 70px; background: rgba(var(--bs-success-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                            <i class="fa-solid fa-utensils text-success" style="font-size: 2.5rem; position: relative;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Найкращі ресторани</h4>
+                    <p class="text-muted mb-0">Ми співпрацюємо лише з перевіреними закладами, які готують найсмачніші страви.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <div class="d-inline-block position-relative">
+                            <div style="width: 70px; height: 70px; background: rgba(var(--bs-warning-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                            <i class="fa-solid fa-mobile-screen text-warning" style="font-size: 2.5rem; position: relative;"></i>
+                        </div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Зручне замовлення</h4>
+                    <p class="text-muted mb-0">Замовляйте їжу в кілька кліків через наш зручний сайт або мобільний додаток.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5 py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000" alt="Відстеження замовлення" class="img-fluid rounded-4 shadow-lg" />
+        </div>
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">Відстежуйте своє замовлення в реальному часі</h2>
+            <p class="lead mb-4">Наша система трекінгу дозволяє вам бачити, де знаходиться ваше замовлення в будь-який момент часу.</p>
+            <ul class="list-unstyled">
+                <li class="d-flex align-items-center mb-3">
+                    <div class="me-3 rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-check text-white"></i>
+                    </div>
+                    <span>Бачте, коли ресторан отримав ваше замовлення</span>
+                </li>
+                <li class="d-flex align-items-center mb-3">
+                    <div class="me-3 rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-check text-white"></i>
+                    </div>
+                    <span>Знаєте, коли їжа готується</span>
+                </li>
+                <li class="d-flex align-items-center">
+                    <div class="me-3 rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-check text-white"></i>
+                    </div>
+                    <span>Відстежуєте кур'єра на карті</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5 py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold mb-3">Популярні ресторани</h2>
+        <p class="lead text-muted">Обирайте з найкращих закладів вашого міста</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000" class="card-img-top" alt="Ресторан" />
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-2">Італійська кухня</h5>
+                    <p class="text-muted mb-3">Найкраща піца та паста в місті</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-1">4.8 <i class="fa-solid fa-star"></i></span>
+                            <span class="badge bg-light text-dark">30-45 хв</span>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Меню</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1555992336-fb0d29498b13?q=80&w=1000" class="card-img-top" alt="Ресторан" />
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-2">Азіатська кухня</h5>
+                    <p class="text-muted mb-3">Суші, роли та інші страви</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-1">4.7 <i class="fa-solid fa-star"></i></span>
+                            <span class="badge bg-light text-dark">40-55 хв</span>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Меню</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000" class="card-img-top" alt="Ресторан" />
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-2">Українська кухня</h5>
+                    <p class="text-muted mb-3">Традиційні страви з найкращих інгредієнтів</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-1">4.9 <i class="fa-solid fa-star"></i></span>
+                            <span class="badge bg-light text-dark">25-40 хв</span>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Меню</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Restaurants" asp-action="Index" class="btn btn-primary btn-lg px-5">
+            <i class="fa-solid fa-utensils me-2"></i> Переглянути всі ресторани
         </a>
     </div>
 </div>
@@ -39,21 +202,22 @@
         ];
 
         const items = [];
-        const maxItems= 150;
+        const maxItems= 50; // Зменшено кількість для кращої продуктивності
 
         function addFood(item) {
             const emoji = foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
             const text = new createjs.Text(emoji, "32px Arial", "#fff");
             text.x = Math.random() * canvas.width;
             text.y = -30;
-            text.speed = Math.random() * 2 + 1;
-            text.rotationSpeed = Math.random() * 3 - 1.5;
+            text.speed = Math.random() * 1.5 + 0.5; // Зменшено швидкість
+            text.rotationSpeed = Math.random() * 2 - 1;
+            text.alpha = 0.7; // Додано прозорість
             stage.addChild(text);
             items.push(text);
         }
 
         function tick() {
-            if (items.length < maxItems) {
+            if (items.length < maxItems && Math.random() < 0.05) { // Зменшено частоту появи
                 addFood();
             }
 

@@ -5,65 +5,87 @@
     ViewBag.Title = "Редагувати страву";
 }
 
-<h1 class="mb-4">Редагувати страву</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4 fw-bold text-center">
+                <i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Редагувати страву
+            </h1>
 
-<div class="card shadow-sm mb-5">
-    <div class="card-body p-4">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
-            <input type="hidden" asp-for="DishId" />
-            <input type="hidden" name="restaurantId" value="@ViewBag.RestaurantId" />
+            <div class="card shadow-lg border-0 rounded-4 mb-5">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="DishId" />
+                        <input type="hidden" name="restaurantId" value="@ViewBag.RestaurantId" />
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label fw-bold">
-                    <i class="fa-solid fa-signature me-1"></i> Назва страви
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fa-solid fa-signature text-primary"></i>
-                    </span>
-                    <input asp-for="Name" class="form-control" placeholder="Введіть назву" />
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold">
+                                <i class="fa-solid fa-signature me-1"></i> Назва страви
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-signature text-primary"></i>
+                                </span>
+                                <input asp-for="Name" class="form-control" placeholder="Введіть назву" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold">
+                                <i class="fa-solid fa-comment me-1"></i> Опис
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Введіть детальний опис страви, інгредієнти, особливості приготування тощо"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Price" class="form-label fw-bold">
+                                <i class="fa-solid fa-dollar-sign me-1"></i> Ціна
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-dollar-sign text-primary"></i>
+                                </span>
+                                <input asp-for="Price" class="form-control" placeholder="Введіть ціну" />
+                                <span class="input-group-text">грн</span>
+                            </div>
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-image me-1"></i> Оновити фото (необов'язково)
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <input type="file" name="image" class="form-control" />
+                            </div>
+                            <small class="text-muted">Рекомендований розмір: 800x600 пікселів. Максимальний розмір: 5MB.</small>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mb-5">
+                                <label class="form-label fw-bold">Поточне фото:</label>
+                                <div class="text-center">
+                                    <img src="@Model.ImageUrl" alt="Фото страви" class="img-thumbnail" style="max-height: 300px; object-fit: cover;" />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg py-3">
+                                <i class="fa-solid fa-save me-2"></i> Зберегти зміни
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <span asp-validation-for="Name" class="text-warning"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label fw-bold">
-                    <i class="fa-solid fa-comment me-1"></i> Опис
-                </label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <div class="text-center">
+                <a asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Повернутися до списку
+                </a>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Price" class="form-label fw-bold">
-                    <i class="fa-solid fa-dollar-sign me-1"></i> Ціна
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fa-solid fa-dollar-sign text-primary"></i>
-                    </span>
-                    <input asp-for="Price" class="form-control" placeholder="Введіть ціну" />
-                </div>
-                <span asp-validation-for="Price" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-image me-1"></i> Оновити фото (необов’язково)
-                </label>
-                <input type="file" name="image" class="form-control" />
-            </div>
-
-            @if (!string.IsNullOrEmpty(Model.ImageUrl))
-            {
-                <div class="mb-3 text-center">
-                    <label class="form-label fw-bold">Поточне фото:</label><br />
-                    <img src="@Model.ImageUrl" alt="Фото страви" width="200" class="img-thumbnail mb-2" />
-                </div>
-            }
-
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fa-solid fa-save me-1"></i> Зберегти
-            </button>
-        </form>
+        </div>
     </div>
 </div>

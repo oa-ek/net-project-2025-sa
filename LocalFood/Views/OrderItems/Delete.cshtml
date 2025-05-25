@@ -4,22 +4,48 @@
     ViewData["Title"] = "Видалити позицію замовлення";
 }
 
-<div class="card shadow-sm my-5">
-    <div class="card-body text-center p-5">
-        <h2 class="mb-4">
-            <i class="fa-solid fa-trash me-2"></i> Видалити позицію
-        </h2>
-        <p class="mb-4" style="color: #ffcb9a;">
-            Ви впевнені, що хочете видалити позицію: <strong>@Model.Dish.Name</strong>?
-        </p>
-        <form asp-action="Delete" method="post">
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger me-2">
-                <i class="fa-solid fa-check me-1"></i> Видалити
-            </button>
-            <a asp-action="Index" asp-route-orderId="@Model.OrderId" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left me-1"></i> Назад
-            </a>
-        </form>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 my-5">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <div class="position-relative d-inline-block">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(45deg, var(--danger-color) 0%, #e02e56 100%); border-radius: 50%; filter: blur(20px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                            <i class="fa-solid fa-trash-can text-danger" style="font-size: 4rem; position: relative;"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="mb-4 fw-bold">Видалити позицію</h2>
+
+                    <div class="mb-4">
+                        @if (Model.Dish != null && !string.IsNullOrEmpty(Model.Dish.ImageUrl))
+                        {
+                            <img src="@Model.Dish.ImageUrl" alt="@Model.Dish.Name" class="img-thumbnail mb-3" style="max-height: 150px; object-fit: cover;" />
+                        }
+                        <h4 class="fw-bold">@Model.Dish.Name</h4>
+                        <p class="text-muted mb-2">Кількість: @Model.Quantity</p>
+                        <p class="fw-bold text-primary">Ціна: @((Model.Price * Model.Quantity).ToString("0.00")) грн</p>
+                    </div>
+
+                    <div class="alert alert-danger mb-4">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        Ви впевнені, що хочете видалити цю позицію з замовлення?
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg px-4">
+                                <i class="fa-solid fa-check me-1"></i> Видалити
+                            </button>
+                            <a asp-action="Index" asp-route-orderId="@Model.OrderId" class="btn btn-secondary btn-lg px-4">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Назад
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

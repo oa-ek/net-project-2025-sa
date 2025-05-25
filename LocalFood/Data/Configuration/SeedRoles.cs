@@ -9,50 +9,42 @@ namespace LocalFood.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-            string[] roles = { "Admin", "User", "Courier" };
-
+            // 1) Створюємо чотири ролі
+            string[] roles = { "Admin", "Manager", "Courier", "User" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
-                {
                     await roleManager.CreateAsync(new IdentityRole(role));
-                }
             }
 
-            // Адміністратор
+            // 2) Тестовий адмін
             var adminEmail = "admin@example.com";
-            var adminPassword = "Admin123!";
-
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
-            if (adminUser == null)
+            var admin = await userManager.FindByEmailAsync(adminEmail);
+            if (admin == null)
             {
-                adminUser = new IdentityUser
-                {
-                    UserName = adminEmail,
-                    Email = adminEmail,
-                    EmailConfirmed = true
-                };
-                var result = await userManager.CreateAsync(adminUser, adminPassword);
-                if (result.Succeeded)
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                admin = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+                var r = await userManager.CreateAsync(admin, "Admin123!");
+                if (r.Succeeded) await userManager.AddToRoleAsync(admin, "Admin");
             }
 
-            // Кур'єр
+            // 3) Тестовий кур’єр
             var courierEmail = "courier@example.com";
-            var courierPassword = "Courier123!";
-
-            var courierUser = await userManager.FindByEmailAsync(courierEmail);
-            if (courierUser == null)
+            var courier = await userManager.FindByEmailAsync(courierEmail);
+            if (courier == null)
             {
-                courierUser = new IdentityUser
-                {
-                    UserName = courierEmail,
-                    Email = courierEmail,
-                    EmailConfirmed = true
-                };
-                var result = await userManager.CreateAsync(courierUser, courierPassword);
-                if (result.Succeeded)
-                    await userManager.AddToRoleAsync(courierUser, "Courier");
+                courier = new IdentityUser { UserName = courierEmail, Email = courierEmail, EmailConfirmed = true };
+                var r = await userManager.CreateAsync(courier, "Courier123!");
+                if (r.Succeeded) await userManager.AddToRoleAsync(courier, "Courier");
+            }
+
+            // 4) Тестовий менеджер ресторану
+            var managerEmail = "manager@example.com";
+            var manager = await userManager.FindByEmailAsync(managerEmail);
+            if (manager == null)
+            {
+                manager = new IdentityUser { UserName = managerEmail, Email = managerEmail, EmailConfirmed = true };
+                var r = await userManager.CreateAsync(manager, "Manager123!");
+                if (r.Succeeded) await userManager.AddToRoleAsync(manager, "Manager");
             }
         }
     }

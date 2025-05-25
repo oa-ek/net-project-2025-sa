@@ -1,0 +1,44 @@
+﻿@model LocalFood.ViewModels.EditRolesViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Редагувати роль — " + Model.Email;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fa-solid fa-user-gear me-2"></i>@ViewBag.Title
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="EditRoles" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="mb-4">
+                            <label asp-for="Roles" class="form-label fw-bold">
+                                <i class="fa-solid fa-users-gear me-1"></i> Оберіть роль
+                            </label>
+                            <select asp-for="Roles" asp-items="Model.AllRoles" class="form-select form-select-lg py-3">
+                                <option value="">-- без ролі --</option>
+                            </select>
+                            <span asp-validation-for="Roles" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-success px-4 py-2">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Зберегти
+                            </button>
+                            <a asp-action="UsersList" class="btn btn-secondary px-4 py-2">
+                                <i class="fa-solid fa-ban me-1"></i> Відмінити
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

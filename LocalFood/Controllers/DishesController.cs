@@ -39,7 +39,7 @@ namespace LocalFood.Controllers
             return View(await dishesQuery.ToListAsync());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public IActionResult Create(int restaurantId)
         {
             ViewBag.RestaurantId = restaurantId;
@@ -48,7 +48,7 @@ namespace LocalFood.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Create(Dish dish, int restaurantId, IFormFile? image)
         {
             if (!ModelState.IsValid)
@@ -86,7 +86,7 @@ namespace LocalFood.Controllers
             return RedirectToAction("Menu", "Restaurants", new { id = restaurantId });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Edit(int id)
         {
             var dish = await _context.Dishes
@@ -101,7 +101,7 @@ namespace LocalFood.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Edit(int id, Dish dish, int restaurantId, IFormFile? image)
         {
             if (id != dish.DishId) return NotFound();
@@ -155,7 +155,7 @@ namespace LocalFood.Controllers
             return RedirectToAction("Menu", "Restaurants", new { id = restaurantId });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete(int id)
         {
             var dish = await _context.Dishes
@@ -170,7 +170,7 @@ namespace LocalFood.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var dish = await _context.Dishes.FindAsync(id);

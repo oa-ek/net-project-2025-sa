@@ -5,36 +5,71 @@
     ViewBag.Title = "Мої замовлення";
 }
 
-<h1 class="mb-4">Мої замовлення</h1>
+<div class="container">
+    <h1 class="mb-4 fw-bold">
+        <i class="fa-solid fa-clipboard-list me-2 text-primary"></i> Мої замовлення
+    </h1>
 
-<div class="card shadow-sm bg-dark text-light">
-    <div class="card-body">
-        <table class="table table-dark table-hover w-100">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Дата замовлення</th>
-                    <th>Статус</th>
-                    <th>Сума</th>
-                    <th>Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var o in Model)
-                {
-                    <tr>
-                        <td>@o.OrderId</td>
-                        <td>@o.OrderDate.ToString("g")</td>
-                        <td>@o.OrderStatus?.Name</td>
-                        <td>@o.TotalAmount.ToString("0.00") грн</td>
-                        <td>
-                            <a asp-action="Track" asp-route-id="@o.OrderId" class="btn btn-sm btn-info">
-                                <i class="fa-solid fa-eye me-1"></i> Деталі
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    @if (!Model.Any())
+    {
+        <div class="card shadow-lg border-0 rounded-4 p-5 text-center">
+            <div class="mb-4">
+                <i class="fa-solid fa-clipboard-list text-muted" style="font-size: 5rem;"></i>
+            </div>
+            <h3 class="mb-3">У вас ще немає замовлень</h3>
+            <p class="text-muted mb-4">Перегляньте меню ресторанів та зробіть своє перше замовлення</p>
+            <a asp-controller="Restaurants" asp-action="Index" class="btn btn-primary btn-lg px-5">
+                <i class="fa-solid fa-utensils me-2"></i> Перейти до ресторанів
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-lg border-0 rounded-4 mb-5">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 ps-4">ID</th>
+                                <th class="py-3">Дата замовлення</th>
+                                <th class="py-3">Статус</th>
+                                <th class="py-3">Ресторан</th>
+                                <th class="py-3 text-end">Сума</th>
+                                <th class="py-3 text-center pe-4">Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model)
+                            {
+                                <tr>
+                                    <td class="py-3 ps-4">
+                                        <span class="badge bg-primary rounded-pill px-3 py-2">#@o.OrderId</span>
+                                    </td>
+                                    <td class="py-3">@o.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td class="py-3">
+                                        <span class="badge @(o.OrderStatus?.Name == "Доставлено" ? "bg-success" : o.OrderStatus?.Name == "Доставляється" ? "bg-warning" : "bg-info") rounded-pill px-3 py-2">
+                                            @o.OrderStatus?.Name
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-store me-2 text-primary"></i>
+                                            <span>@o.Restaurant?.Name</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-end fw-bold">@o.TotalAmount.ToString("0.00") грн</td>
+                                    <td class="py-3 text-center pe-4">
+                                        <a asp-action="Track" asp-route-id="@o.OrderId" class="btn btn-primary btn-sm">
+                                            <i class="fa-solid fa-eye me-1"></i> Деталі
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
 </div>

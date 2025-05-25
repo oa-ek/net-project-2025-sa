@@ -5,53 +5,228 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Меню ресторану " + Model.Name;
-    bool isAdmin = SignInManager.IsSignedIn(User) && User.IsInRole("Admin");
+    bool isManager = SignInManager.IsSignedIn(User) && User.IsInRole("Manager");
     bool isUser = SignInManager.IsSignedIn(User) && User.IsInRole("User");
 }
 
-<h1>Меню ресторану "@Model.Name"</h1>
-
-@if (isAdmin)
-{
-    <div class="mb-3">
-        <a class="btn btn-success" asp-controller="Dishes" asp-action="Index" asp-route-restaurantId="@Model.RestaurantId">
-            Управління стравами
-        </a>
-    </div>
-}
-
-@if (Model.RestaurantDishes == null || !Model.RestaurantDishes.Any())
-{
-    <p>У цьому ресторані ще немає страв.</p>
-}
-else
-{
-    <div class="row">
-        @foreach (var rd in Model.RestaurantDishes)
-        {
-            var dish = rd.Dish;
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    @if (!string.IsNullOrEmpty(dish.ImageUrl))
-                    {
-                        <img src="@dish.ImageUrl" class="card-img-top" alt="Фото страви" style="max-height: 180px; object-fit: cover;" />
-                    }
-                    <div class="card-body">
-                        <h5 class="card-title">@dish.Name</h5>
-                        <p class="card-text">@dish.Description</p>
-                        <p><strong>@dish.Price.ToString("0.00") грн</strong></p>
-
-                        @if (isUser)
-                        {
-                            <form asp-controller="Cart" asp-action="AddToCart" method="get">
-                                <input type="hidden" name="dishId" value="@dish.DishId" />
-                                <input type="number" name="quantity" min="1" value="1" class="form-control mb-2" />
-                                <button type="submit" class="btn btn-primary btn-sm">Додати в кошик</button>
-                            </form>
-                        }
-                    </div>
-                </div>
+<div class="container">
+    <div class="position-relative mb-5">
+        <div class="restaurant-banner rounded-4 shadow-lg position-relative overflow-hidden"
+             style="height: 300px; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('@(string.IsNullOrEmpty(Model.ImagePath) ? "/placeholder.svg?height=300&width=1200" : Model.ImagePath)') center/cover no-repeat;">
+            <div class="position-absolute bottom-0 start-0 p-4 text-white">
+                <h1 class="fw-bold mb-2">@Model.Name</h1>
+                <p class="mb-0">
+                    <i class="fa-solid fa-location-dot me-2"></i>@Model.Address
+                </p>
             </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="fa-solid fa-utensils me-2 text-primary"></i> Меню ресторану
+        </h2>
+        @if (isManager)
+        {
+            <a class="btn btn-success" asp-controller="Dishes" asp-action="Create" asp-route-restaurantId="@Model.RestaurantId">
+                <i class="fa-solid fa-plus me-1"></i> Додати страву
+            </a>
         }
     </div>
+
+    @if (Model.RestaurantDishes == null || !Model.RestaurantDishes.Any())
+    {
+        <div class="card shadow-lg border-0 rounded-4 p-5 text-center">
+            <div class="mb-4">
+                <i class="fa-solid fa-utensils text-muted" style="font-size: 5rem;"></i>
+            </div>
+            <h3 class="mb-3">У цьому ресторані ще немає страв</h3>
+            <p class="text-muted mb-4">Завітайте пізніше або оберіть інший ресторан</p>
+            <a asp-controller="Restaurants" asp-action="Index" class="btn btn-primary btn-lg px-5">
+                <i class="fa-solid fa-store me-2"></i> Переглянути інші ресторани
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="mb-4">
+            <div class="input-group">
+                <span class="input-group-text bg-primary text-white">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" id="searchDishes" class="form-control form-control-lg" placeholder="Пошук страв..." />
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mb-5" id="dishesContainer">
+            @foreach (var rd in Model.RestaurantDishes)
+            {
+                var dish = rd.Dish;
+                if (dish == null) continue;
+                <div class="col dish-item">
+                    <div class="food-card h-100">
+                        @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                        {
+                            <img src="@dish.ImageUrl" alt="@dish.Name" class="card-img-top" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fa-solid fa-utensils text-muted" style="font-size: 3rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title dish-name">@dish.Name</h5>
+                            <p class="description dish-description">@dish.Description</p>
+                            <p class="price mb-3">@dish.Price.ToString("0.00") грн</p>
+                            <div class="mt-auto">
+                                @if (isUser)
+                                {
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                        <input type="hidden" name="dishId" value="@dish.DishId" />
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="input-group me-2">
+                                                <button type="button" class="btn btn-outline-secondary decrease-quantity">
+                                                    <i class="fa-solid fa-minus"></i>
+                                                </button>
+                                                <input type="number" name="quantity" class="form-control text-center quantity-input" value="1" min="1" max="10" />
+                                                <button type="button" class="btn btn-outline-secondary increase-quantity">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </button>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                                <i class="fa-solid fa-cart-plus me-1"></i> Додати
+                                            </button>
+                                        </div>
+                                    </form>
+                                }
+                                @if (isManager)
+                                {
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="Dishes" asp-action="Edit" asp-route-id="@dish.DishId" class="btn btn-warning flex-grow-1">
+                                            <i class="fa-solid fa-pen-to-square me-1"></i> Редагувати
+                                        </a>
+                                        <a asp-controller="Dishes" asp-action="Delete" asp-route-id="@dish.DishId" class="btn btn-danger flex-grow-1">
+                                            <i class="fa-solid fa-trash me-1"></i> Видалити
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div id="noDishesFound" class="card shadow-lg border-0 rounded-4 p-5 text-center d-none">
+            <div class="mb-4">
+                <i class="fa-solid fa-search text-muted" style="font-size: 5rem;"></i>
+            </div>
+            <h3 class="mb-3">Страв не знайдено</h3>
+            <p class="text-muted mb-4">Спробуйте змінити параметри пошуку</p>
+            <button id="clearSearch" class="btn btn-primary btn-lg px-5">
+                <i class="fa-solid fa-times me-2"></i> Очистити пошук
+            </button>
+        </div>
+    }
+</div>
+
+@if (Model.RestaurantDishes != null && Model.RestaurantDishes.Any())
+{
+    @section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Кнопки +/-
+            document.querySelectorAll('.decrease-quantity').forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const currentValue = parseInt(input.value) || 1;
+                    if (currentValue > 1) input.value = currentValue - 1;
+                });
+            });
+
+            document.querySelectorAll('.increase-quantity').forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const currentValue = parseInt(input.value) || 1;
+                    if (currentValue < 10) input.value = currentValue + 1;
+                });
+            });
+
+            // Валідація поля
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    let value = parseInt(this.value);
+                    if (isNaN(value) || value < 1) this.value = 1;
+                    else if (value > 10) this.value = 10;
+                });
+            });
+
+            // Пошук страв
+            const searchInput = document.getElementById('searchDishes');
+            const dishesContainer = document.getElementById('dishesContainer');
+            const noDishesFound = document.getElementById('noDishesFound');
+            const clearSearchBtn = document.getElementById('clearSearch');
+
+            if (searchInput && dishesContainer && noDishesFound) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    const dishes = document.querySelectorAll('.dish-item');
+                    let foundDishes = 0;
+
+                    dishes.forEach(dish => {
+                        const dishNameEl = dish.querySelector('.dish-name');
+                        const dishDescEl = dish.querySelector('.dish-description');
+
+                        const dishName = dishNameEl ? dishNameEl.textContent.toLowerCase() : '';
+                        const dishDescription = dishDescEl ? dishDescEl.textContent.toLowerCase() : '';
+
+                        if (dishName.includes(searchTerm) || dishDescription.includes(searchTerm)) {
+                            dish.classList.remove('d-none');
+                            foundDishes++;
+                        } else {
+                            dish.classList.add('d-none');
+                        }
+                    });
+
+                    if (foundDishes === 0) {
+                        dishesContainer.classList.add('d-none');
+                        noDishesFound.classList.remove('d-none');
+                    } else {
+                        dishesContainer.classList.remove('d-none');
+                        noDishesFound.classList.add('d-none');
+                    }
+                });
+            }
+
+            if (clearSearchBtn && searchInput && dishesContainer && noDishesFound) {
+                clearSearchBtn.addEventListener('click', function () {
+                    searchInput.value = '';
+                    const dishes = document.querySelectorAll('.dish-item');
+                    dishes.forEach(dish => {
+                        dish.classList.remove('d-none');
+                    });
+                    dishesContainer.classList.remove('d-none');
+                    noDishesFound.classList.add('d-none');
+                });
+            }
+
+            // Анімація картки
+            document.querySelectorAll('.food-card').forEach(card => {
+                card.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                card.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                    this.style.transition = 'all 0.3s ease';
+                });
+            });
+
+        });
+    </script>
+    }
 }

@@ -3,51 +3,114 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Список замовлень";
-    var isAdmin = User.IsInRole("Admin");
+    var isManager = User.IsInRole("Manager");
 }
 
-<h1 class="mb-4">Список замовлень</h1>
+<div class="container">
+    <h1 class="mb-4 fw-bold">
+        <i class="fa-solid fa-clipboard-list me-2 text-primary"></i> Список замовлень
+    </h1>
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @foreach (var order in Model)
-    {
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fa-solid fa-user me-1"></i> @order.CustomerName
-                    </h5>
-                    <p class="card-text mb-1">
-                        <i class="fa-solid fa-phone me-1"></i> @order.Phone
-                    </p>
-                    <p class="card-text mb-1">
-                        <i class="fa-solid fa-location-dot me-1"></i> @order.Address
-                    </p>
-                    <p class="card-text mb-1">
-                        <i class="fa-solid fa-calendar me-1"></i> @order.OrderDate.ToString("g")
-                    </p>
-                    <p class="card-text mb-1">
-                        <i class="fa-solid fa-utensils me-1"></i> @order.Restaurant?.Name
-                    </p>
-                    <p class="card-text mb-3">
-                        <i class="fa-solid fa-info-circle me-1"></i> @order.OrderStatus?.Name
-                    </p>
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-primary-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-clipboard-list text-primary" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h3 class="fw-bold">@Model.Count()</h3>
+                            <p class="text-muted mb-0">Всього замовлень</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-footer bg-transparent border-0 text-center">
-                    <a asp-action="Track" asp-route-id="@order.OrderId" class="btn btn-info btn-sm me-1">
-                        <i class="fa-solid fa-route me-1"></i> Відстежити
-                    </a>
-                    @if (isAdmin)
-                    {
-                        <a asp-action="Edit" asp-route-id="@order.OrderId" class="btn btn-warning btn-sm me-1">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> Редагувати
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@order.OrderId" class="btn btn-danger btn-sm">
-                            <i class="fa-solid fa-trash me-1"></i> Видалити
-                        </a>
-                    }
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-warning-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-clock text-warning" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h3 class="fw-bold">@Model.Count(o => o.OrderStatus?.Name == "В обробці" || o.OrderStatus?.Name == "Готується")</h3>
+                            <p class="text-muted mb-0">В процесі</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-success-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-check-circle text-success" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h3 class="fw-bold">@Model.Count(o => o.OrderStatus?.Name == "Доставлено")</h3>
+                            <p class="text-muted mb-0">Доставлено</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    }
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        @foreach (var order in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-header border-0 py-3 bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary rounded-pill px-3 py-2">#@order.OrderId</span>
+                            <span class="badge @(order.OrderStatus?.Name == "Доставлено" ? "bg-success" : order.OrderStatus?.Name == "Доставляється" ? "bg-warning" : "bg-info") rounded-pill px-3 py-2">
+                                @order.OrderStatus?.Name
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="avatar me-3" style="width: 40px; height: 40px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">@order.CustomerName</h6>
+                                    <small class="text-muted">@order.Phone</small>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mb-2">
+                            <i class="fa-solid fa-location-dot me-2 text-danger"></i>
+                            @order.Address
+                        </p>
+                        <p class="mb-2">
+                            <i class="fa-solid fa-calendar me-2 text-primary"></i>
+                            @order.OrderDate.ToString("dd.MM.yyyy HH:mm")
+                        </p>
+                        <p class="mb-3">
+                            <i class="fa-solid fa-utensils me-2 text-success"></i>
+                            @order.Restaurant?.Name
+                        </p>
+                        <p class="mb-0 fw-bold text-primary fs-5">
+                            <i class="fa-solid fa-money-bill-wave me-2"></i>
+                            @order.TotalAmount.ToString("0.00") грн
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                        <div class="d-flex gap-2">
+                            <a asp-action="Track" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                <i class="fa-solid fa-route me-1"></i> Деталі
+                            </a>
+                            @if (isManager)
+                            {
+                                <a asp-action="Edit" asp-route-id="@order.OrderId" class="btn btn-warning btn-sm flex-grow-1">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> Редагувати
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>

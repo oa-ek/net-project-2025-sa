@@ -40,6 +40,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.Configure<SecurityStampValidatorOptions>(opts =>
+{
+    opts.ValidationInterval = TimeSpan.Zero;
+});
+
 // ? Автентифікація: Кука за замовчуванням + Google як опція
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie()
@@ -79,5 +84,5 @@ using (var scope = app.Services.CreateScope())
     await SeedRoles.InitializeAsync(services);
 }
 
-// ?? Запуск
+
 app.Run();

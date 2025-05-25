@@ -5,69 +5,117 @@
     ViewBag.Title = "Оформлення замовлення";
 }
 
-<h2 class="text-center mb-4">
-    <i class="fa-solid fa-clipboard-check me-2 text-success"></i> Оформлення замовлення
-</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="text-center mb-4 fw-bold">
+                <i class="fa-solid fa-clipboard-check me-2 text-success"></i> Оформлення замовлення
+            </h2>
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger shadow-sm">
-        <i class="fa-solid fa-circle-exclamation me-1"></i> Будь ласка, виправте помилки:
-        <ul class="mt-2">
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            @if (!ViewData.ModelState.IsValid)
             {
-                <li>@error.ErrorMessage</li>
+                <div class="alert alert-danger shadow-sm rounded-4 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-circle-exclamation me-3 fs-3"></i>
+                        <div>
+                            <h5 class="mb-1">Будь ласка, виправте помилки:</h5>
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             }
-        </ul>
-    </div>
-}
 
-<div class="card bg-dark text-light shadow-sm mb-5">
-    <div class="card-body">
-        <form asp-action="Checkout" method="post">
-            @Html.AntiForgeryToken()
+            <div class="card shadow-lg border-0 rounded-4 mb-5">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Checkout" method="post" class="row">
+                        @Html.AntiForgeryToken()
 
-            <div class="mb-3">
-                <label asp-for="FullName" class="form-label fw-bold">
-                    <i class="fa-solid fa-user me-1"></i> Ім'я та прізвище
-                </label>
-                <input asp-for="FullName" class="form-control" placeholder="Введіть повне ім'я" required />
-                <span asp-validation-for="FullName" class="text-warning"></span>
+                        @* Список збережених адрес *@
+                        @if (Model.SavedAddresses != null && Model.SavedAddresses.Any())
+                        {
+                            <div class="col-12 mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="fa-solid fa-map-marker-alt me-1"></i> Виберіть збережену адресу
+                                </label>
+                                <select class="form-select form-select-lg" id="selectAddress">
+                                    <option value="">-- Виберіть адресу --</option>
+                                    @foreach (var address in Model.SavedAddresses)
+                                    {
+                                        <option value="@address.Id"
+                                                data-fulladdress="@address.FullAddress"
+                                                data-latitude="@address.Latitude"
+                                                data-longitude="@address.Longitude">
+                                            @address.Name (@address.FullAddress)
+                                        </option>
+                                    }
+                                </select>
+                                <small class="text-muted">Або введіть/виберіть адресу вручну нижче</small>
+                            </div>
+                        }
+
+                        <div class="col-12 mb-4 d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="fillFromProfile">
+                                <i class="fa-solid fa-user-check me-1"></i> Заповнити з профілю
+                            </button>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="FirstName" class="form-label fw-bold">
+                                <i class="fa-solid fa-user me-1"></i> Ім'я
+                            </label>
+                            <input asp-for="FirstName" class="form-control form-control-lg" placeholder="Введіть ім'я" required id="firstNameInput" autocomplete="given-name" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="LastName" class="form-label fw-bold">
+                                <i class="fa-solid fa-user me-1"></i> Прізвище
+                            </label>
+                            <input asp-for="LastName" class="form-control form-control-lg" placeholder="Введіть прізвище" required id="lastNameInput" autocomplete="family-name" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="Phone" class="form-label fw-bold">
+                                <i class="fa-solid fa-phone me-1"></i> Телефон
+                            </label>
+                            <input asp-for="Phone" class="form-control form-control-lg" placeholder="Ваш номер телефону" required id="phoneInput" autocomplete="tel" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <label asp-for="Address" class="form-label fw-bold">
+                                <i class="fa-solid fa-map-location-dot me-1"></i> Адреса доставки
+                            </label>
+                            <input asp-for="Address" id="addressInput" class="form-control form-control-lg" placeholder="Введіть адресу" required />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <p class="text-muted mb-2">
+                                <i class="fa-solid fa-map-marked-alt me-1"></i> Або натисніть на мапі для вибору адреси:
+                            </p>
+                            <div id="map" class="rounded-4 shadow-sm" style="height: 400px; border: 2px solid #e0e0e0;"></div>
+                        </div>
+
+                        <!-- Приховані поля для координат -->
+                        <input asp-for="Latitude" type="hidden" id="latitudeInput" />
+                        <input asp-for="Longitude" type="hidden" id="longitudeInput" />
+
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-success btn-lg px-5 py-3 fw-bold" id="submitBtn">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Підтвердити замовлення
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Phone" class="form-label fw-bold">
-                    <i class="fa-solid fa-phone me-1"></i> Телефон
-                </label>
-                <input asp-for="Phone" class="form-control" placeholder="Ваш номер телефону" required />
-                <span asp-validation-for="Phone" class="text-warning"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label fw-bold">
-                    <i class="fa-solid fa-map-location-dot me-1"></i> Адреса доставки
-                </label>
-                <input asp-for="Address" id="addressInput" class="form-control" placeholder="Введіть адресу" required />
-                <span asp-validation-for="Address" class="text-warning"></span>
-            </div>
-
-            <div class="mb-4">
-                <p class="text-muted">
-                    <i class="fa-solid fa-map-marked-alt me-1"></i> Або натисніть на мапі для вибору адреси:
-                </p>
-                <div id="map" class="rounded shadow-sm" style="height: 400px; border: 2px solid #444;"></div>
-            </div>
-
-            <!-- Приховані поля для координат -->
-            <input asp-for="Latitude" type="hidden" id="latitudeInput" />
-            <input asp-for="Longitude" type="hidden" id="longitudeInput" />
-
-            <div class="text-end">
-                <button type="submit" class="btn btn-success btn-lg px-4" id="submitBtn">
-                    <i class="fa-solid fa-paper-plane me-2"></i> Підтвердити замовлення
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -80,6 +128,24 @@
             const addressInput = document.getElementById("addressInput");
             const latitudeInput = document.getElementById("latitudeInput");
             const longitudeInput = document.getElementById("longitudeInput");
+
+            // Зміна адреси із випадаючого списку
+            const selectAddress = document.getElementById("selectAddress");
+            if (selectAddress) {
+                selectAddress.addEventListener('change', function () {
+                    const selected = this.options[this.selectedIndex];
+                    const fullAddress = selected.getAttribute('data-fulladdress');
+                    const latitude = selected.getAttribute('data-latitude');
+                    const longitude = selected.getAttribute('data-longitude');
+                    if (fullAddress) addressInput.value = fullAddress;
+                    if (latitude) latitudeInput.value = latitude;
+                    if (longitude) longitudeInput.value = longitude;
+                    // Запустити подію input для оновлення значень (важливо для ModelBinder)
+                    addressInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    longitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            }
 
             const map = new maplibregl.Map({
                 container: 'map',
@@ -105,8 +171,12 @@
                     .then(data => {
                         if (data && data.display_name) {
                             addressInput.value = data.display_name;
+                            addressInput.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                     });
+
+                latitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                longitudeInput.dispatchEvent(new Event('input', { bubbles: true }));
             });
 
             if (navigator.geolocation) {
@@ -115,6 +185,32 @@
                     const lng = position.coords.longitude;
                     map.setCenter([lng, lat]);
                     map.setZoom(13);
+                });
+            }
+
+            // ==== Автозаповнення з профілю (новий спосіб через JSON) ====
+            const firstNameInput = document.getElementById("firstNameInput");
+            const lastNameInput = document.getElementById("lastNameInput");
+            const phoneInput = document.getElementById("phoneInput");
+
+            // Сучасна передача даних профілю через JSON (уникнення encoding проблем Razor/JS)
+            const profileData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                firstName = Model.ProfileFirstName ?? "",
+                lastName = Model.ProfileLastName ?? "",
+                phone = Model.ProfilePhone ?? ""
+            }));
+
+            const fillBtn = document.getElementById("fillFromProfile");
+            if (fillBtn) {
+                fillBtn.addEventListener("click", function () {
+                    firstNameInput.value = profileData.firstName;
+                    lastNameInput.value = profileData.lastName;
+                    phoneInput.value = profileData.phone;
+                    // trigger input event для коректної інтеграції з валідацією MVC
+                    ["firstNameInput", "lastNameInput", "phoneInput"].forEach(id =>
+                        document.getElementById(id).dispatchEvent(new Event('input', { bubbles: true }))
+                    );
                 });
             }
         });

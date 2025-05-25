@@ -1,167 +1,210 @@
-﻿using LocalFood.Data;
+﻿// Controllers/RestaurantsController.cs
+using LocalFood.Data;
 using LocalFood.Models;
+using LocalFood.ViewModels;
+using LocalFood.Extensions;              // для User.GetUserId()
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace LocalFood.Controllers
 {
     [Authorize]
     public class RestaurantsController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _env;
 
-        public RestaurantsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public RestaurantsController(ApplicationDbContext db, IWebHostEnvironment env)
         {
-            _context = context;
-            _webHostEnvironment = webHostEnvironment;
+            _db  = db;
+            _env = env;
         }
 
+        // GET: /Restaurants/Index
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Restaurants.ToListAsync());
+            // 1) Неавторизовані, User або Admin — бачать всі ресторани
+            if (!User.Identity.IsAuthenticated
+                || User.IsInRole("User")
+                || User.IsInRole("Admin"))
+            {
+                var all = await _db.Restaurants.ToListAsync();
+                return View(all);
+            }
+
+            // 2) Manager — бачить тільки свій ресторан
+            if (User.IsInRole("Manager"))
+            {
+                var mgrId = User.GetUserId();
+                var mine = await _db.Restaurants
+                    .Where(r => r.ManagerId == mgrId)
+                    .ToListAsync();
+                return View(mine);
+            }
+
+            // 3) Інші ролі (наприклад Courier) — заборонено
+            return Forbid();
         }
 
-        [Authorize(Roles = "Admin")]
+        // GET: /Restaurants/Create
+        [Authorize(Roles = "Manager")]
         public IActionResult Create()
         {
-            return View();
+            return View(new RestaurantCreateViewModel());
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(Restaurant restaurant, IFormFile? UploadImage)
+        // POST: /Restaurants/Create
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Create(RestaurantCreateViewModel vm)
         {
-            if (ModelState.IsValid)
-            {
-                if (UploadImage != null)
-                {
-                    restaurant.ImagePath = await ProcessUploadedFileAsync(UploadImage);
-                }
+            if (!ModelState.IsValid)
+                return View(vm);
 
-                _context.Add(restaurant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            // Створюємо доменну модель і підставляємо ManagerId
+            var restaurant = new Restaurant
+            {
+                Name        = vm.Name,
+                Address     = vm.Address,
+                Description = vm.Description,
+                ManagerId   = User.GetUserId()
+            };
+
+            if (vm.UploadImage != null)
+            {
+                restaurant.ImagePath = await SaveFile(vm.UploadImage);
             }
 
-            return View(restaurant);
+            _db.Restaurants.Add(restaurant);
+            await _db.SaveChangesAsync();
+
+            // Повертаємося в Index — там менеджер побачить лише свій ресторан
+            return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Admin")]
+        // GET: /Restaurants/Edit/5
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Edit(int id)
         {
-            var restaurant = await _context.Restaurants.FindAsync(id);
-            if (restaurant == null) return NotFound();
-            return View(restaurant);
+            var rest = await _db.Restaurants.FindAsync(id);
+            if (rest == null || rest.ManagerId != User.GetUserId())
+                return Forbid();
+
+            var vm = new RestaurantEditViewModel
+            {
+                RestaurantId = rest.RestaurantId,
+                Name = rest.Name,
+                Address = rest.Address,
+                Description = rest.Description,
+                ImagePath = rest.ImagePath
+            };
+            return View(vm);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, Restaurant restaurant, IFormFile? UploadImage)
+
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Edit(int id, RestaurantEditViewModel vm)
         {
-            if (id != restaurant.RestaurantId) return NotFound();
+            if (id != vm.RestaurantId)
+                return BadRequest();
 
-            if (ModelState.IsValid)
+            var rest = await _db.Restaurants.FindAsync(id);
+            if (rest == null || rest.ManagerId != User.GetUserId())
+                return Forbid();
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            rest.Name = vm.Name;
+            rest.Address = vm.Address;
+            rest.Description = vm.Description;
+
+            // Якщо новий файл завантажено
+            if (vm.UploadImage != null)
             {
-                var existing = await _context.Restaurants.FindAsync(id);
-                if (existing == null) return NotFound();
-
-                // Оновлення властивостей
-                existing.Name = restaurant.Name;
-                existing.Description = restaurant.Description;
-                existing.Address = restaurant.Address;
-
-                if (UploadImage != null)
+                // видаляємо старий файл
+                if (!string.IsNullOrEmpty(rest.ImagePath))
                 {
-                    existing.ImagePath = await ProcessUploadedFileAsync(UploadImage);
+                    var full = Path.Combine(_env.WebRootPath, rest.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(full))
+                        System.IO.File.Delete(full);
                 }
-
-                _context.Update(existing);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                rest.ImagePath = await SaveFile(vm.UploadImage);
             }
 
-            return View(restaurant);
-        }
+            await _db.SaveChangesAsync();
 
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var restaurant = await _context.Restaurants.FindAsync(id);
-            if (restaurant == null) return NotFound();
-            return View(restaurant);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var restaurant = await _context.Restaurants.FindAsync(id);
-            if (restaurant != null)
-            {
-                // 🧹 Видалення фото
-                if (!string.IsNullOrEmpty(restaurant.ImagePath))
-                {
-                    var fullImagePath = Path.Combine(_webHostEnvironment.WebRootPath, restaurant.ImagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(fullImagePath))
-                    {
-                        System.IO.File.Delete(fullImagePath);
-                    }
-                }
-
-                _context.Restaurants.Remove(restaurant);
-                await _context.SaveChangesAsync();
-            }
             return RedirectToAction(nameof(Index));
         }
 
 
-        /// <summary>
-        /// Метод обробки завантаженого файлу: генерує унікальне ім'я, створює потрібну папку,
-        /// зберігає файл та повертає URL зображення.
-        /// </summary>
-        private async Task<string?> ProcessUploadedFileAsync(IFormFile UploadImage)
+        // GET: /Restaurants/Delete/5
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (UploadImage == null || UploadImage.Length == 0)
-            {
-                return null;
-            }
+            var rest = await _db.Restaurants.FindAsync(id);
+            if (rest == null || rest.ManagerId != User.GetUserId())
+                return Forbid();
 
-            var fileName = Path.GetFileNameWithoutExtension(UploadImage.FileName)
-                           + "_" + Guid.NewGuid().ToString().Substring(0, 8)
-                           + Path.GetExtension(UploadImage.FileName);
-
-            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "restaurants");
-            Directory.CreateDirectory(uploadPath);
-
-            var filePath = Path.Combine(uploadPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await UploadImage.CopyToAsync(stream);
-            }
-
-            return "/images/restaurants/" + fileName;
+            return View(rest);
         }
+
+        // POST: /Restaurants/Delete/5
+        [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var rest = await _db.Restaurants.FindAsync(id);
+            if (rest == null || rest.ManagerId != User.GetUserId())
+                return Forbid();
+
+            // Видаляємо файл, якщо був
+            if (!string.IsNullOrEmpty(rest.ImagePath))
+            {
+                var full = Path.Combine(_env.WebRootPath, rest.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(full))
+                    System.IO.File.Delete(full);
+            }
+
+            _db.Restaurants.Remove(rest);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Restaurants/Menu/5
         [AllowAnonymous]
         public async Task<IActionResult> Menu(int id)
         {
-            var restaurant = await _context.Restaurants
+            var rest = await _db.Restaurants
                 .Include(r => r.RestaurantDishes)
                 .ThenInclude(rd => rd.Dish)
                 .FirstOrDefaultAsync(r => r.RestaurantId == id);
-
-            if (restaurant == null)
+            if (rest == null)
                 return NotFound();
 
-            return View(restaurant);
+            return View(rest);
         }
 
+        // ********** допоміжний метод **********
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var fn  = Path.GetFileNameWithoutExtension(file.FileName)
+                      + "_" + Guid.NewGuid().ToString("n").Substring(0, 8)
+                      + Path.GetExtension(file.FileName);
+            var dir = Path.Combine(_env.WebRootPath, "images", "restaurants");
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, fn);
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await file.CopyToAsync(stream);
+            return $"/images/restaurants/{fn}";
+        }
     }
 }

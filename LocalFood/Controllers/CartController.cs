@@ -31,6 +31,8 @@ namespace LocalFood.Controllers
             return View(cartItems);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int dishId, int quantity = 1)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -76,11 +78,33 @@ namespace LocalFood.Controllers
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
 
+            var savedAddresses = await _context.Addresses
+                .Where(a => a.UserId == userId)
+                .Select(a => new AddressViewModel
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    FullAddress = a.FullAddress,
+                    Latitude = a.Latitude,
+                    Longitude = a.Longitude
+                })
+                .ToListAsync();
+
+            // Парсимо ім'я/прізвище для автозаповнення (але не обов'язково вносити зміни!)
+            string[] nameParts = (userProfile?.FullName ?? "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string firstName = nameParts.Length > 0 ? nameParts[0] : "";
+            string lastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "";
+
             var vm = new CheckoutViewModel
             {
-                FullName = userProfile?.FullName ?? "",
-                Phone = userProfile?.User?.PhoneNumber ?? "",
-                Address = userProfile?.Address ?? ""
+                FirstName = firstName,
+                LastName = lastName,
+                Phone = userProfile?.Phone ?? userProfile?.User?.PhoneNumber ?? "",
+                Address = userProfile?.Address ?? "",
+                SavedAddresses = savedAddresses,
+                ProfileFirstName = firstName,
+                ProfileLastName = lastName,
+                ProfilePhone = userProfile?.Phone ?? userProfile?.User?.PhoneNumber ?? ""
             };
 
             return View(vm);
@@ -90,13 +114,39 @@ namespace LocalFood.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CheckoutViewModel model)
         {
+            // Знімаємо додаткові поля автозаповнення (вони для відображення, не для валідації)
+            ModelState.Remove(nameof(model.ProfileFirstName));
+            ModelState.Remove(nameof(model.ProfileLastName));
+            ModelState.Remove(nameof(model.ProfilePhone));
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Якщо модель невалідна - підтягуємо адреси і профіль для автозаповнення
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("ModelState invalid");
+                model.SavedAddresses = await _context.Addresses
+                    .Where(a => a.UserId == userId)
+                    .Select(a => new AddressViewModel
+                    {
+                        Id = a.Id,
+                        Name = a.Name,
+                        FullAddress = a.FullAddress,
+                        Latitude = a.Latitude,
+                        Longitude = a.Longitude
+                    })
+                    .ToListAsync();
+
+                var userProfile = await _context.UserProfiles.Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.UserId == userId);
+
+                string[] nameParts = (userProfile?.FullName ?? "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                model.ProfileFirstName = nameParts.Length > 0 ? nameParts[0] : "";
+                model.ProfileLastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "";
+                model.ProfilePhone = userProfile?.Phone ?? userProfile?.User?.PhoneNumber ?? "";
+
                 return View(model);
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var cartItems = await _context.CartItems
                 .Include(c => c.Dish)
                 .Where(c => c.UserId == userId)
@@ -105,18 +155,32 @@ namespace LocalFood.Controllers
             if (!cartItems.Any())
             {
                 ModelState.AddModelError("", "Ваш кошик порожній.");
+                model.SavedAddresses = await _context.Addresses
+                    .Where(a => a.UserId == userId)
+                    .Select(a => new AddressViewModel
+                    {
+                        Id = a.Id,
+                        Name = a.Name,
+                        FullAddress = a.FullAddress,
+                        Latitude = a.Latitude,
+                        Longitude = a.Longitude
+                    })
+                    .ToListAsync();
+
+                var userProfile = await _context.UserProfiles.Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.UserId == userId);
+
+                string[] nameParts = (userProfile?.FullName ?? "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                model.ProfileFirstName = nameParts.Length > 0 ? nameParts[0] : "";
+                model.ProfileLastName = nameParts.Length > 1 ? string.Join(" ", nameParts.Skip(1)) : "";
+                model.ProfilePhone = userProfile?.Phone ?? userProfile?.User?.PhoneNumber ?? "";
+
                 return View(model);
             }
 
-            // Оновлення адреси в профілі
-            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-            if (userProfile != null)
-            {
-                userProfile.Address = model.Address;
-                _context.UserProfiles.Update(userProfile);
-            }
+            // !!! НЕ ОНОВЛЮЄМО профіль !!!
 
-            // Визначення ресторану (по першій страві)
+            // Визначаємо ресторан (по першій страві)
             var firstDishId = cartItems.First().DishId;
             var restaurantDish = await _context.RestaurantDishes.FirstOrDefaultAsync(rd => rd.DishId == firstDishId);
             int restaurantId = restaurantDish?.RestaurantId ?? 1;
@@ -125,7 +189,7 @@ namespace LocalFood.Controllers
             var order = new Order
             {
                 UserId = userId,
-                CustomerName = model.FullName,
+                CustomerName = $"{model.FirstName} {model.LastName}".Trim(),
                 Phone = model.Phone,
                 Address = model.Address,
                 Latitude = model.Latitude,

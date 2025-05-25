@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LocalFood.Models
 {
@@ -16,10 +18,14 @@ namespace LocalFood.Models
         [Required]
         public string Address { get; set; }
 
-        // Додаємо фото як шлях до збереженого файлу
+        [Required]
+        public string ManagerId { get; set; }
+
+        [ForeignKey(nameof(ManagerId))]
+        public virtual IdentityUser Manager { get; set; }
+
         public string? ImagePath { get; set; }
 
         public virtual ICollection<RestaurantDish> RestaurantDishes { get; set; } = new List<RestaurantDish>();
     }
-
 }

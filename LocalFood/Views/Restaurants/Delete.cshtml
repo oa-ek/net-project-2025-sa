@@ -5,24 +5,47 @@
     ViewBag.Title = "Видалити ресторан";
 }
 
-<div class="card shadow-sm">
-    <div class="card-body p-4 text-center">
-        <h2 class="mb-4">
-            <i class="fa-solid fa-trash me-2"></i> Видалити ресторан
-        </h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 my-5">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <div class="position-relative d-inline-block">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(45deg, var(--danger-color) 0%, #e02e56 100%); border-radius: 50%; filter: blur(20px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                            <i class="fa-solid fa-trash-can text-danger" style="font-size: 4rem; position: relative;"></i>
+                        </div>
+                    </div>
 
-        <p class="mb-4" style="color: #ffcb9a;">
-            Ви дійсно хочете видалити ресторан "<strong>@Model.Name</strong>"?
-        </p>
+                    <h2 class="mb-4 fw-bold">Видалити ресторан</h2>
 
-        <form asp-action="Delete" method="post">
-            <input type="hidden" asp-for="RestaurantId" />
-            <button type="submit" class="btn btn-danger me-2">
-                <i class="fa-solid fa-check me-1"></i> Так, видалити
-            </button>
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left me-1"></i> Ні, повернутися
-            </a>
-        </form>
+                    <div class="mb-4">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath" alt="@Model.Name" class="img-thumbnail mb-3" style="max-height: 200px; object-fit: cover;" />
+                        }
+                        <h4 class="fw-bold">@Model.Name</h4>
+                        <p class="text-muted mb-0">@Model.Address</p>
+                    </div>
+
+                    <div class="alert alert-danger mb-4">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        Ви дійсно хочете видалити ресторан "<strong>@Model.Name</strong>"? Ця дія не може бути скасована.
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="RestaurantId" />
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg px-4">
+                                <i class="fa-solid fa-check me-1"></i> Так, видалити
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary btn-lg px-4">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Ні, повернутися
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

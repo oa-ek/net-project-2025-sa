@@ -3,19 +3,27 @@
     ViewBag.Title = "Доступ заборонено";
 }
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body text-center p-5">
-                    <h2 class="mb-4">
-                        <i class="fa-solid fa-shield-halved" style="font-size: 2rem; color:#e43d3d;"></i>
-                        Доступ заборонено
-                    </h2>
-                    <p class="mb-4" style="color: #ffcb9a;">Ви не маєте прав для перегляду цієї сторінки.</p>
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-secondary">
-                        <i class="fa-solid fa-right-to-bracket me-1"></i> Увійти під іншим акаунтом
-                    </a>
+<div class="auth-container">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card rounded-4 overflow-hidden">
+                    <div class="text-center p-5">
+                        <div class="position-relative mb-5">
+                            <div class="position-absolute top-50 start-50 translate-middle" style="width: 150px; height: 150px; background: linear-gradient(45deg, var(--danger-color) 0%, #e02e56 100%); border-radius: 50%; filter: blur(25px); opacity: 0.8;"></div>
+                            <i class="fa-solid fa-ban text-white" style="font-size: 8rem; position: relative; z-index: 1;"></i>
+                        </div>
+                        <h1 class="text-white fw-bold mb-4" style="font-size: 2.5rem; letter-spacing: -0.5px;">Доступ заборонено</h1>
+                        <p class="text-white-50 fs-5 mb-5">Ви не маєте прав для перегляду цієї сторінки. Вас заблоковано!</p>
+                        <a href="/" class="btn btn-lg px-5 py-3 fw-bold position-relative overflow-hidden" style="background: linear-gradient(45deg, var(--danger-color) 0%, #e02e56 100%); border: none; border-radius: 12px;">
+                            <span class="position-relative z-index-1">
+                                <i class="fa-solid fa-home me-2"></i>На головну
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="text-white-50">© 2025 LocalFood. Всі права захищено.</p>
                 </div>
             </div>
         </div>

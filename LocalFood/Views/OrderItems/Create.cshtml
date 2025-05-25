@@ -4,35 +4,83 @@
     ViewData["Title"] = "Додати страву до замовлення";
 }
 
-<h2 class="mb-4">Додати страву до замовлення</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h2 class="mb-4 fw-bold text-center">
+                <i class="fa-solid fa-plus me-2 text-primary"></i> Додати страву до замовлення
+            </h2>
 
-<div class="card shadow-sm mb-5">
-    <div class="card-body p-4">
-        <form asp-action="Create" method="post">
-            <input type="hidden" asp-for="OrderId" />
+            <div class="card shadow-lg border-0 rounded-4 mb-5">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="OrderId" />
 
-            <div class="mb-3">
-                <label class="form-label fw-bold">Страва</label>
-                <select asp-for="DishId" asp-items="ViewBag.DishId" class="form-select" required>
-                    <option value="">Оберіть страву</option>
-                </select>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-utensils me-1"></i> Страва
+                            </label>
+                            <select asp-for="DishId" asp-items="ViewBag.DishId" class="form-select form-select-lg" required>
+                                <option value="">Оберіть страву</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label asp-for="Quantity" class="form-label fw-bold">
+                                <i class="fa-solid fa-sort-numeric-up me-1"></i> Кількість
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <button type="button" class="btn btn-outline-secondary" id="decreaseQuantity">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <input asp-for="Quantity" class="form-control text-center" value="1" min="1" required />
+                                <button type="button" class="btn btn-outline-secondary" id="increaseQuantity">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-success btn-lg px-4">
+                                <i class="fa-solid fa-plus me-1"></i> Додати
+                            </button>
+                            <a asp-action="Track" asp-controller="Orders" asp-route-id="@Model.OrderId" class="btn btn-outline-secondary btn-lg">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Назад
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Quantity" class="form-label fw-bold">
-                    <i class="fa-solid fa-sort-numeric-up me-1"></i> Кількість
-                </label>
-                <input asp-for="Quantity" class="form-control" placeholder="Введіть кількість" required />
-            </div>
-
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">
-                    <i class="fa-solid fa-plus me-1"></i> Додати
-                </button>
-                <a asp-action="Track" asp-controller="Orders" asp-route-id="@Model.OrderId" class="btn btn-secondary">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Назад
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('Quantity');
+            const decreaseBtn = document.getElementById('decreaseQuantity');
+            const increaseBtn = document.getElementById('increaseQuantity');
+
+            decreaseBtn.addEventListener('click', function() {
+                let currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', function() {
+                let currentValue = parseInt(quantityInput.value);
+                quantityInput.value = currentValue + 1;
+            });
+
+            // Валідація при введенні
+            quantityInput.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                if (isNaN(value) || value < 1) {
+                    this.value = 1;
+                }
+            });
+        });
+    </script>
+}

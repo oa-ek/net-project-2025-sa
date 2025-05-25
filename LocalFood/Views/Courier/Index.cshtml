@@ -3,18 +3,76 @@
     ViewBag.Title = "Головна - Кур'єр";
 }
 
-<h2 class="mb-4">
-    <i class="fa-solid fa-truck me-2"></i> Головна сторінка кур’єра
-</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <div class="d-inline-block position-relative mb-3">
+                    <div style="width: 100px; height: 100px; background: linear-gradient(45deg, var(--primary-color) 0%, var(--primary-dark) 100%); border-radius: 50%; filter: blur(20px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                    <i class="fa-solid fa-truck-fast text-primary" style="font-size: 4rem; position: relative;"></i>
+                </div>
+                <h1 class="fw-bold mb-3">Головна сторінка кур'єра</h1>
+                <p class="text-muted fs-5 mb-0">Ласкаво просимо, @User.Identity?.Name!</p>
+            </div>
 
-<div class="alert alert-info shadow-sm">
-    <i class="fa-solid fa-smile-beam me-1"></i>
-    Ласкаво просимо, @User.Identity?.Name!<br />
-    Тут ти можеш бачити активні доставки, переглядати маршрути та змінювати статуси замовлень.
-</div>
+            <div class="card shadow-lg border-0 rounded-4 mb-5">
+                <div class="card-body p-5 text-center">
+                    <div class="row">
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-primary-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-truck-fast text-primary" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Активні доставки</h5>
+                            <p class="text-muted mb-0">Перегляньте замовлення, які потрібно доставити</p>
+                        </div>
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-success-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-route text-success" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Маршрути</h5>
+                            <p class="text-muted mb-0">Оптимальні маршрути для швидкої доставки</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-inline-block position-relative mb-3">
+                                <div style="width: 70px; height: 70px; background: rgba(var(--bs-warning-rgb), 0.1); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                <i class="fa-solid fa-clipboard-check text-warning" style="font-size: 2.5rem; position: relative;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Статуси</h5>
+                            <p class="text-muted mb-0">Змінюйте статуси замовлень в реальному часі</p>
+                        </div>
+                    </div>
 
-<div class="text-center">
-    <a class="btn btn-primary btn-lg" asp-action="OrdersToDeliver">
-        <i class="fa-solid fa-truck-fast me-1"></i> Перейти до замовлень
-    </a>
+                    <div class="mt-5">
+                        <a class="btn btn-primary btn-lg px-5 py-3" asp-action="OrdersToDeliver">
+                            <i class="fa-solid fa-truck-fast me-2"></i> Перейти до замовлень
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-lightbulb me-2 text-warning"></i> Поради для кур'єрів
+                    </h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="fa-solid fa-check-circle me-2 text-success"></i> Завжди перевіряйте замовлення перед доставкою
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="fa-solid fa-check-circle me-2 text-success"></i> Використовуйте термосумку для збереження температури страв
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="fa-solid fa-check-circle me-2 text-success"></i> Оновлюйте статус замовлення в реальному часі
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="fa-solid fa-check-circle me-2 text-success"></i> Будьте ввічливими з клієнтами
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
